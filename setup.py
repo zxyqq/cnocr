@@ -39,7 +39,7 @@ exec(
 required = [
     "click",
     "tqdm",
-    "torch>=1.8.0,<2.0",
+    "torch>=1.8.0",
     "torchvision>=0.9.0",
     'numpy',
     "pytorch-lightning>=1.6.0",
