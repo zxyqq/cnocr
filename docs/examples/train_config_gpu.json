@@ -25,6 +25,6 @@
     "precision": 16,
     "limit_train_batches": 1.0,
     "limit_val_batches": 1.0,
-    "pl_checkpoint_monitor": "complete_match_epoch",
+    "pl_checkpoint_monitor": "val-complete_match-epoch",
     "pl_checkpoint_mode": "max"
 }
