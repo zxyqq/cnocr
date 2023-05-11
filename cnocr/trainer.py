@@ -102,6 +102,7 @@ class Metrics(object):
         for name, _config in configs.items():
             if name not in METRIC_MAPPING:
                 logger.warning(f'metric {name} is not supported and will be ignored')
+                continue
             self._metrics[name] = METRIC_MAPPING[name](**_config)
         if len(self._metrics) < 1:
             raise RuntimeError(
