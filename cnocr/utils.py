@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2021, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -207,44 +207,6 @@ def download(url, path=None, overwrite=False, sha1_hash=None):
             )
 
     return fname
-
-
-def get_model_file(model_name, model_backend, model_dir):
-    r"""Return location for the downloaded models on local file system.
-
-    This function will download from online model zoo when model cannot be found or has mismatch.
-    The root directory will be created if it doesn't exist.
-
-    Parameters
-    ----------
-    model_name : str
-    model_backend : str
-    model_dir : str, default $CNOCR_HOME
-        Location for keeping the model parameters.
-
-    Returns
-    -------
-    file_path
-        Path to the requested pretrained model file.
-    """
-    model_dir = os.path.expanduser(model_dir)
-    par_dir = os.path.dirname(model_dir)
-    os.makedirs(par_dir, exist_ok=True)
-
-    if (model_name, model_backend) not in AVAILABLE_MODELS:
-        raise NotImplementedError(
-            '%s is not a downloadable model' % ((model_name, model_backend),)
-        )
-    url = AVAILABLE_MODELS.get_url(model_name, model_backend)
-
-    zip_file_path = os.path.join(par_dir, os.path.basename(url))
-    if not os.path.exists(zip_file_path):
-        download(url, path=zip_file_path, overwrite=True)
-    with zipfile.ZipFile(zip_file_path) as zf:
-        zf.extractall(par_dir)
-    os.remove(zip_file_path)
-
-    return model_dir
 
 
 def read_charset(charset_fp):

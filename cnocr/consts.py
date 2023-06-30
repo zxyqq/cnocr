@@ -108,11 +108,19 @@ DECODER_CONFIGS = {
 }
 
 
+HF_HUB_REPO_ID = "breezedeus/cnstd-cnocr-models"
+HF_HUB_SUBFOLDER = "models/cnocr/%s" % MODEL_VERSION
+
+
+def format_hf_hub_url(url: str) -> dict:
+    return {
+        'repo_id': HF_HUB_REPO_ID,
+        'subfolder': HF_HUB_SUBFOLDER,
+        'filename': url,
+    }
+
+
 class AvailableModels(object):
-    ROOT_URL = (
-        'https://huggingface.co/breezedeus/cnstd-cnocr-models/resolve/main/models/cnocr/%s/'
-        % MODEL_VERSION
-    )
     CNOCR_SPACE = '__cnocr__'
 
     # name: (epoch, url)
@@ -173,7 +181,7 @@ class AvailableModels(object):
             return self.CNOCR_MODELS[(model_name, model_backend)][0]
         return None
 
-    def get_url(self, model_name, model_backend) -> Optional[str]:
+    def get_url(self, model_name, model_backend) -> Optional[dict]:
         if (model_name, model_backend) in self.CNOCR_MODELS:
             url = self.CNOCR_MODELS[(model_name, model_backend)][1]
         elif (model_name, model_backend) in self.OUTER_MODELS:
@@ -183,7 +191,7 @@ class AvailableModels(object):
                 'no url is found for model %s' % ((model_name, model_backend),)
             )
             return None
-        url = self.ROOT_URL + url
+        url = format_hf_hub_url(url)
         return url
 
 

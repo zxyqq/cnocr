@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2022, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -26,12 +26,12 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 import torch
+from cnstd.utils import get_model_file
 
 from .consts import MODEL_VERSION, AVAILABLE_MODELS, VOCAB_FP
 from .models.ocr_model import OcrModel
 from .utils import (
     data_dir,
-    get_model_file,
     read_charset,
     check_model_name,
     check_context,
@@ -165,9 +165,13 @@ class Recognizer(object):
             )
         elif len(fps) < 1:
             logger.warning('no %s file is found in %s' % (model_ext, self._model_dir))
-            get_model_file(
-                self._model_name, self._model_backend, self._model_dir
-            )  # download the .zip file and unzip
+            if (self._model_name, self._model_backend) not in AVAILABLE_MODELS:
+                raise NotImplementedError(
+                    '%s is not a downloadable model'
+                    % ((self._model_name, self._model_backend),)
+                )
+            url = AVAILABLE_MODELS.get_url(self._model_name, self._model_backend)
+            get_model_file(url, self._model_dir)
             fps = glob(
                 '%s/%s*.%s' % (self._model_dir, self._model_file_prefix, model_ext)
             )

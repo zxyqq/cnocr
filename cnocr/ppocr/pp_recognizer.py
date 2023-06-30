@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2022, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2022-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -26,14 +26,12 @@ import math
 
 import numpy as np
 from PIL import Image
+from cnstd.utils import get_model_file
 
-from ..utils import resize_img, data_dir, get_model_file, read_img
+from ..utils import resize_img, data_dir, read_img
 from ..recognizer import Recognizer
 from .postprocess import build_post_process
-from .utility import (
-    get_image_file_list,
-    create_predictor,
-)
+from .utility import create_predictor
 from .consts import PP_SPACE
 from ..consts import MODEL_VERSION, AVAILABLE_MODELS
 
@@ -102,9 +100,13 @@ class PPRecognizer(Recognizer):
         model_fp = os.path.join(self._model_dir, '%s_rec_infer.onnx' % self._model_name)
         if not os.path.isfile(model_fp):
             logger.warning('can not find model file %s' % model_fp)
-            get_model_file(
-                self._model_name, self._model_backend, self._model_dir
-            )  # download the .zip file and unzip
+            if (self._model_name, self._model_backend) not in AVAILABLE_MODELS:
+                raise NotImplementedError(
+                    '%s is not a downloadable model'
+                    % ((self._model_name, self._model_backend),)
+                )
+            url = AVAILABLE_MODELS.get_url(self._model_name, self._model_backend)
+            get_model_file(url, self._model_dir)
 
         self._model_fp = model_fp
         logger.info('use model: %s' % self._model_fp)
