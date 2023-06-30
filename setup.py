@@ -47,7 +47,7 @@ required = [
     "pillow>=5.3.0",
     "onnx",
     "onnxruntime",
-    "cnstd>=1.2",
+    "cnstd>=1.2.3",
 ]
 extras_require = {
     "dev": ["pip-tools", "pytest", "python-Levenshtein"],
