@@ -49,6 +49,7 @@ from cnocr.data_utils.aug import (
 from cnocr.dataset import OcrDataModule
 from cnocr.trainer import PlTrainer, resave_model
 from cnocr import CnOcr, gen_model
+from cnocr.recognizer import Recognizer
 
 _CONTEXT_SETTINGS = {"help_option_names": ['-h', '--help']}
 logger = set_logger(log_level=logging.INFO)
@@ -482,7 +483,7 @@ def resave_model_file(
 def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
     import onnx
 
-    ocr = CnOcr(model_name, model_fp=input_model_fp)
+    ocr = Recognizer(model_name, model_fp=input_model_fp)
     model = ocr._model
 
     x = torch.randn(1, 1, 32, 280)
