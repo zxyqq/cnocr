@@ -216,9 +216,7 @@ class WrapperLightningModule(pl.LightningModule):
         losses = res['loss']
 
         preds = self._postprocess_preds(res['preds'])
-        reals = res['target']
-        if isinstance(reals, torch.Tensor):
-            reals = reals.detach().cpu()
+        reals = self._postprocess_target(res['target'])
         val_metrics = self.val_metrics.add_batch(references=reals, predictions=preds)
         val_metrics['loss'] = losses.item()
         # val_metrics['accuracy'] = sum([p == r for p, r in zip(preds, reals)]) / (len(reals) + 1e-6)
