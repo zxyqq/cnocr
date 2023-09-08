@@ -27,6 +27,7 @@ import torch.optim as optim
 from torch import nn
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
+from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 import torchmetrics
 
@@ -141,6 +142,9 @@ class WrapperLightningModule(pl.LightningModule):
         self.train_metrics = self.get_metrics()
         self.val_metrics = self.get_metrics()
 
+        self.training_step_outputs = []
+        self.val_step_outputs = []
+
     def forward(self, x):
         return self.model(x)
 
@@ -185,20 +189,22 @@ class WrapperLightningModule(pl.LightningModule):
         self.log_dict(
             train_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
+        self.training_step_outputs.append(losses)
         return losses
 
-    def training_epoch_end(self, outputs) -> None:
+    def on_train_epoch_end(self) -> None:
         train_metrics = self.train_metrics.compute()
         train_metrics = {
             f'train-{k}-epoch': v for k, v in train_metrics.items() if not np.isnan(v)
         }
         train_metrics['train-loss-epoch'] = np.mean(
-            [out['loss'].item() for out in outputs]
+            [out.item() for out in self.training_step_outputs]
         )
         self.log_dict(
             train_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True,
         )
         self.train_metrics = self.get_metrics()
+        self.training_step_outputs.clear()
 
     def validation_step(self, batch, batch_idx):
         # if hasattr(self.model, 'validation_step'):
@@ -224,18 +230,22 @@ class WrapperLightningModule(pl.LightningModule):
         self.log_dict(
             val_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
+        self.val_step_outputs.append(losses)
         return losses
 
-    def validation_epoch_end(self, outputs) -> None:
+    def on_validation_epoch_end(self) -> None:
         val_metrics = self.val_metrics.compute()
         val_metrics = {
             f'val-{k}-epoch': v for k, v in val_metrics.items() if not np.isnan(v)
         }
-        val_metrics['val-loss-epoch'] = np.mean([out.item() for out in outputs])
+        val_metrics['val-loss-epoch'] = np.mean(
+            [out.item() for out in self.val_step_outputs]
+        )
         self.log_dict(
             val_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True,
         )
         self.val_metrics = self.get_metrics()
+        self.val_step_outputs.clear()
 
     def configure_optimizers(self):
         return [self._optimizer], [get_lr_scheduler(self.config, self._optimizer)]
@@ -249,6 +259,7 @@ class PlTrainer(object):
     def __init__(self, config, ckpt_fn=None):
         self.config = config
 
+        wandb_logger = WandbLogger(project='CnOCR-Rec', save_dir='runs', log_model=True)
         lr_monitor = LearningRateMonitor(logging_interval='step')
         callbacks = [lr_monitor]
 
@@ -270,6 +281,7 @@ class PlTrainer(object):
         self.pl_trainer = pl.Trainer(
             limit_train_batches=self.config.get('limit_train_batches', 1.0),
             limit_val_batches=self.config.get('limit_val_batches', 1.0),
+            logger=wandb_logger,
             accelerator=self.config.get('accelerator', 'auto'),
             devices=self.config.get('devices'),
             max_epochs=self.config.get('epochs', 20),
