@@ -42,10 +42,8 @@ from cnocr.utils import (
     read_img,
     draw_ocr_results,
 )
-from cnocr.data_utils.aug import (
-    NormalizeAug,
-    RandomStretchAug,
-)
+from cnocr.data_utils.aug import NormalizeAug
+from cnocr.data_utils.transforms import train_transform, test_transform
 from cnocr.dataset import OcrDataModule
 from cnocr.trainer import PlTrainer, resave_model
 from cnocr import CnOcr, gen_model
@@ -112,22 +110,23 @@ def train(
 ):
     """训练识别模型"""
     check_model_name(rec_model_name)
-    train_transform = T.Compose(
-        [
-            RandomStretchAug(min_ratio=0.5, max_ratio=1.5),
-            # RandomCrop((8, 10)),
-            T.RandomInvert(p=0.2),
-            T.RandomApply([T.RandomRotation(degrees=1)], p=0.4),
-            # T.RandomAutocontrast(p=0.05),
-            # T.RandomPosterize(bits=4, p=0.3),
-            # T.RandomAdjustSharpness(sharpness_factor=0.5, p=0.3),
-            # T.RandomEqualize(p=0.3),
-            # T.RandomApply([T.GaussianBlur(kernel_size=3)], p=0.5),
-            NormalizeAug(),
-            # RandomPaddingAug(p=0.5, max_pad_len=72),
-        ]
-    )
-    val_transform = NormalizeAug()
+    # train_transform = T.Compose(
+    #     [
+    #         RandomStretchAug(min_ratio=0.5, max_ratio=1.5),
+    #         # RandomCrop((8, 10)),
+    #         T.RandomInvert(p=0.2),
+    #         T.RandomApply([T.RandomRotation(degrees=1)], p=0.4),
+    #         # T.RandomAutocontrast(p=0.05),
+    #         # T.RandomPosterize(bits=4, p=0.3),
+    #         # T.RandomAdjustSharpness(sharpness_factor=0.5, p=0.3),
+    #         # T.RandomEqualize(p=0.3),
+    #         # T.RandomApply([T.GaussianBlur(kernel_size=3)], p=0.5),
+    #         NormalizeAug(),
+    #         # RandomPaddingAug(p=0.5, max_pad_len=72),
+    #     ]
+    # )
+    # val_transform = NormalizeAug()
+    val_transform = test_transform
 
     train_config = json.load(open(train_config_fp))
 
@@ -243,6 +242,19 @@ def predict(
     draw_font_path,
 ):
     """模型预测"""
+    fp_list = []
+    if os.path.isfile(img_file_or_dir):
+        fp_list.append(img_file_or_dir)
+    elif os.path.isdir(img_file_or_dir):
+        fn_list = glob.glob1(img_file_or_dir, '*g')
+        fp_list = [os.path.join(img_file_or_dir, fn) for fn in fn_list]
+    else:
+        raise ValueError(
+            f'"{img_file_or_dir}" is not found, which must be a file or a directory'
+        )
+    if len(fp_list) == 0:
+        raise ValueError(f'No image is found from "{img_file_or_dir}".')
+
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
@@ -253,12 +265,6 @@ def predict(
         # det_more_configs={'rotated_bbox': False},
     )
     ocr_func = ocr.ocr_for_single_line if single_line else ocr.ocr
-    fp_list = []
-    if os.path.isfile(img_file_or_dir):
-        fp_list.append(img_file_or_dir)
-    elif os.path.isdir(img_file_or_dir):
-        fn_list = glob.glob1(img_file_or_dir, '*g')
-        fp_list = [os.path.join(img_file_or_dir, fn) for fn in fn_list]
 
     for fp in fp_list:
         start_time = time.time()
