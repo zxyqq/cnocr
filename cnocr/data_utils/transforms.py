@@ -234,6 +234,7 @@ train_transform = transform_wrap(_train_alb_transform)
 
 _test_alb_transform = alb.Compose(
     [
+        CustomRandomCrop((6, 8), p=0.8),
         ToSingleChannelGray(always_apply=True),
         CustomNormalize(always_apply=True),
     ]
