@@ -67,7 +67,10 @@ class CustomRandomCrop(ImageOnlyTransform):
 
     def apply(self, img, **params):
         h_top, w_left, h, w = self.cal_params(img)
-        return cv2.resize(img[h_top:h_top + h, w_left:w_left + w], img.shape[:2])
+        out = cv2.resize(img[h_top:h_top + h, w_left:w_left + w], img.shape[:2][::-1])
+        if img.ndim > out.ndim:
+            out = np.expand_dims(out, axis=-1)
+        return out
 
 
 class TransparentOverlay(ImageOnlyTransform):
@@ -166,6 +169,7 @@ def transform_wrap(transform):
 
 _train_alb_transform = alb.Compose(
     [
+        CustomRandomCrop((8, 10), p=0.8),
         alb.Compose(
             [
                 alb.ShiftScaleRotate(
@@ -207,9 +211,9 @@ _train_alb_transform = alb.Compose(
         alb.ElasticTransform(
             always_apply=False,
             p=0.3,
-            alpha=0.15,
+            alpha=0.1,
             sigma=10.07,
-            alpha_affine=0.15,
+            alpha_affine=0.1,
             interpolation=0,
             border_mode=0,
             value=(255, 255, 255),
