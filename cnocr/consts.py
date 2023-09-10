@@ -90,11 +90,29 @@ ENCODER_CONFIGS = {
         'num_init_features': 64,
         'out_length': 400,
     },
-    'densenet_lite_136': {  # 长度压缩至 1/8（seq_len == 35）
+    'densenet_lite_136': {  # 长度压缩至 1/8（seq_len == 35）; #params, with fc: 680 K, with gru: 1.4 M
         'growth_rate': 32,
         'block_config': [1, 3, 6],
         'num_init_features': 64,
         'out_length': 528,
+    },
+    'densenet_lite_246': {  # 长度压缩至 1/8（seq_len == 35）; #params, with fc: 831 K, with gru: 1.6 M
+        'growth_rate': 32,
+        'block_config': [2, 4, 6],
+        'num_init_features': 64,
+        'out_length': 576,
+    },
+    'densenet_lite_666': {  # 长度压缩至 1/8（seq_len == 35）; #params, with fc: 1.4 M, with gru: xxx
+        'growth_rate': 32,
+        'block_config': [6, 6, 6],
+        'num_init_features': 64,
+        'out_length': 704,
+    },
+    'densenet_lite_999': {  # 长度压缩至 1/8（seq_len == 35）; #params, with fc: 2.4 M, with gru: xxx
+        'growth_rate': 32,
+        'block_config': [9, 9, 9],
+        'num_init_features': 64,
+        'out_length': 1040,
     },
     'mobilenetv3_tiny': {'arch': 'tiny', 'out_length': 384,},
     'mobilenetv3_small': {'arch': 'small', 'out_length': 384,},
@@ -103,8 +121,11 @@ ENCODER_CONFIGS = {
 DECODER_CONFIGS = {
     'lstm': {'rnn_units': 128,},
     'gru': {'rnn_units': 128,},
+    'gru_base': {'rnn_units': 256,},
+    'gru_large': {'rnn_units': 512,},
     'fc': {'hidden_size': 128, 'dropout': 0.1,},
-    'fcfull': {'hidden_size': 256, 'dropout': 0.3,},
+    'fc_base': {'hidden_size': 256, 'dropout': 0.3,},
+    'fc_large': {'hidden_size': 512, 'dropout': 0.4, },
 }
 
 

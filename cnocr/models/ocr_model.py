@@ -76,7 +76,7 @@ class DecoderManager(object):
             assert config is not None and 'name' in config
             name = config.pop('name')
 
-        if name.lower() == 'lstm':
+        if 'lstm' in name.lower():
             decoder = nn.LSTM(
                 input_size=input_size,
                 hidden_size=config['rnn_units'],
@@ -85,7 +85,7 @@ class DecoderManager(object):
                 bidirectional=True,
             )
             out_length = config['rnn_units'] * 2
-        elif name.lower() == 'gru':
+        elif 'gru' in name.lower():
             decoder = nn.GRU(
                 input_size=input_size,
                 hidden_size=config['rnn_units'],
@@ -94,7 +94,7 @@ class DecoderManager(object):
                 bidirectional=True,
             )
             out_length = config['rnn_units'] * 2
-        elif name.lower() in ('fc', 'fcfull'):
+        elif 'fc' in name.lower():
             decoder = nn.Sequential(
                 nn.Dropout(p=config['dropout']),
                 # nn.Tanh(),
@@ -104,7 +104,7 @@ class DecoderManager(object):
             )
             out_length = config['hidden_size']
         else:
-            raise ValueError('not supported encoder name: %s' % name)
+            raise ValueError('not supported decoder name: %s' % name)
         return decoder, out_length
 
 
@@ -202,9 +202,7 @@ class OcrModel(nn.Module):
         logits = self._decode(features_seq, input_lengths)
 
         logits = self.linear(logits)
-        logits = self.mask_by_candidates(
-            logits, candidates, self.vocab, self.letter2id
-        )
+        logits = self.mask_by_candidates(logits, candidates, self.vocab, self.letter2id)
 
         out: OrderedDict[str, Any] = {}
         if return_logits:
