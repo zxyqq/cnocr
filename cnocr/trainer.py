@@ -327,11 +327,16 @@ class PlTrainer(object):
             pl_module = WrapperLightningModule.load_from_checkpoint(
                 resume_from_checkpoint, config=self.config, model=model
             )
-            self.pl_trainer = pl.Trainer(resume_from_checkpoint=resume_from_checkpoint)
         else:
             pl_module = WrapperLightningModule(self.config, model)
 
-        self.pl_trainer.fit(pl_module, train_dataloader, val_dataloaders, datamodule)
+        self.pl_trainer.fit(
+            pl_module,
+            train_dataloader,
+            val_dataloaders,
+            datamodule,
+            ckpt_path=resume_from_checkpoint,
+        )
 
         fields = self.pl_trainer.checkpoint_callback.best_model_path.rsplit(
             '.', maxsplit=1
