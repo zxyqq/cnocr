@@ -125,8 +125,8 @@ class TransparentOverlay(ImageOnlyTransform):
 
         x = np.random.randint(0, max(width - max_width, 1))
         y = np.random.randint(0, max(height - max_height, 1))
-        rect_width = np.random.randint(0, max_width)
-        rect_height = np.random.randint(0, max_height)
+        rect_width = np.random.randint(0, max(max_width, 1))
+        rect_height = np.random.randint(0, max(max_height, 1))
 
         color = [np.random.randint(0, 256) for _ in range(3)]
 
