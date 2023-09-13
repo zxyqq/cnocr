@@ -66,6 +66,14 @@ def collate_fn(img_labels: List[Tuple[str, str]], transform: Callable = None):
     return imgs, img_lengths, labels_list, label_lengths
 
 
+class CollateFn(object):
+    def __init__(self, transform):
+        self.transform = transform
+
+    def __call__(self, img_labels):
+        return collate_fn(img_labels, self.transform)
+
+
 class OcrDataModule(pt.LightningDataModule):
     def __init__(
         self,
@@ -88,6 +96,8 @@ class OcrDataModule(pt.LightningDataModule):
 
         self.train_transforms = train_transforms
         self.val_transforms = val_transforms
+        self.train_collate_fn = CollateFn(self.train_transforms)
+        self.val_collate_fn = CollateFn(self.val_transforms)
 
         self.train = OcrDataset(
             self.index_dir / 'train.tsv', self.img_folder, mode='train'
@@ -111,7 +121,7 @@ class OcrDataModule(pt.LightningDataModule):
             self.train,
             batch_size=self.batch_size,
             shuffle=True,
-            collate_fn=lambda x: collate_fn(x, self.train_transforms),
+            collate_fn=self.train_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
@@ -121,7 +131,7 @@ class OcrDataModule(pt.LightningDataModule):
             self.val,
             batch_size=self.batch_size,
             shuffle=False,
-            collate_fn=lambda x: collate_fn(x, self.val_transforms),
+            collate_fn=self.val_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )

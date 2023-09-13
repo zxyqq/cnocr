@@ -18,6 +18,7 @@
 # under the License.
 import random
 import logging
+import traceback
 
 import cv2
 import torch
@@ -152,10 +153,13 @@ class CustomNormalize(ImageOnlyTransform):
         return normalize_img_array(img)
 
 
-def transform_wrap(transform):
-    """把albumentations的transform转换成torchvision的transform"""
-    def wrapper(ori_image: torch.Tensor) -> torch.Tensor:
+class TransformWrapper(object):
+    def __init__(self, transform):
+        self.transform = transform
+
+    def __call__(self, ori_image: torch.Tensor) -> torch.Tensor:
         """
+        把albumentations的transform转换成torchvision的transform。
 
         Args:
             image (np.ndarray): with shape [C, H, W]
@@ -166,13 +170,15 @@ def transform_wrap(transform):
         image = ori_image.numpy()
         image = image.transpose((1, 2, 0))  # to: [H, W, C]
         try:
-            out = transform(image=image)['image']
-        except:
+            out = self.transform(image=image)['image']
+        except Exception as e:
             logger.error(f"Error when transforming one image with shape: {image.shape}")
-            return ori_image
+            # print call stacktrace
+            traceback.print_exc()
+            logger.error(e)
+            return ori_image.to(torch.float32)
         out = torch.from_numpy(out.transpose((2, 0, 1)))  # to: [C, H, W]
         return out
-    return wrapper
 
 
 _train_alb_transform = alb.Compose(
@@ -238,7 +244,7 @@ _train_alb_transform = alb.Compose(
     ]
 )
 
-train_transform = transform_wrap(_train_alb_transform)
+train_transform = TransformWrapper(_train_alb_transform)
 
 _test_alb_transform = alb.Compose(
     [
@@ -248,4 +254,4 @@ _test_alb_transform = alb.Compose(
     ]
 )
 
-test_transform = transform_wrap(_test_alb_transform)
+test_transform = TransformWrapper(_test_alb_transform)
