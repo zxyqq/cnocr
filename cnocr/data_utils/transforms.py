@@ -33,15 +33,22 @@ logger = logging.getLogger(__name__)
 
 
 class RandomStretchAug(alb.Resize):
-    def __init__(self, min_ratio=0.9, max_ratio=1.1, always_apply=False, p=1):
-        super(RandomStretchAug, self).__init__(height=0, width=0, always_apply=always_apply, p=p)
+    def __init__(
+        self, min_ratio=0.9, max_ratio=1.1, min_width=8, always_apply=False, p=1
+    ):
+        super(RandomStretchAug, self).__init__(
+            height=0, width=0, always_apply=always_apply, p=p
+        )
+        self.min_width = min_width
         self.min_ratio = min_ratio
         self.max_ratio = max_ratio
 
     def apply(self, img, **params):
         h, w = img.shape[:2]
-        new_w_ratio = self.min_ratio + random.random() * (self.max_ratio - self.min_ratio)
-        new_w = int(w * new_w_ratio)
+        new_w_ratio = self.min_ratio + random.random() * (
+            self.max_ratio - self.min_ratio
+        )
+        new_w = max(int(w * new_w_ratio), self.min_width)
         return alb.Resize(height=h, width=new_w).apply(img)
 
 
@@ -54,7 +61,7 @@ class CustomRandomCrop(ImageOnlyTransform):
 
     def cal_params(self, img):
         ori_h, ori_w = img.shape[:2]
-        while True:
+        for _ in range(10):
             h_top, h_bot = (
                 random.randint(0, self.crop_size[0]),
                 random.randint(0, self.crop_size[0]),
@@ -65,14 +72,18 @@ class CustomRandomCrop(ImageOnlyTransform):
             )
             h = ori_h - h_top - h_bot
             w = ori_w - w_left - w_right
-            if h < ori_h * 0.5 or w < ori_w * 0.5:
+            if h < max(ori_h * 0.5, 4) or w < max(ori_w * 0.5, 4):
                 continue
 
             return h_top, w_left, h, w
 
+        return 0, 0, ori_h, ori_w
+
     def apply(self, img, **params):
         h_top, w_left, h, w = self.cal_params(img)
-        out = cv2.resize(img[h_top:h_top + h, w_left:w_left + w], img.shape[:2][::-1])
+        out = cv2.resize(
+            img[h_top : h_top + h, w_left : w_left + w], img.shape[:2][::-1]
+        )
         if img.ndim > out.ndim:
             out = np.expand_dims(out, axis=-1)
         return out
@@ -90,6 +101,8 @@ class TransparentOverlay(ImageOnlyTransform):
         self.alpha = alpha
 
     def apply(self, img, x=0, y=0, height=0, width=0, color=(0, 0, 0), **params):
+        if min(height, width) < 2:
+            return img
         original_c = img.shape[2]
 
         # 确保图片有四个通道（RGBA）

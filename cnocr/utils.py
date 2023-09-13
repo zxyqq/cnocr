@@ -274,19 +274,22 @@ def save_img(img: Union[Tensor, np.ndarray], path):
 def resize_img(
     img: np.ndarray,
     target_h_w: Optional[Tuple[int, int]] = None,
+    min_width: int = 8,
     return_torch: bool = True,
 ) -> Union[torch.Tensor, np.ndarray]:
     """
     rescale an image tensor with [Channel, Height, Width] to the given height value, and keep the ratio
     :param img: np.ndarray; should be [c, height, width]
     :param target_h_w: (height, width) of the target image or None
+    :param min_width: int; minimum width after resized. Only used when `target_h_w` is None. Default 8
     :param return_torch: bool; whether to return a `torch.Tensor` or `np.ndarray`
     :return: image tensor with the given height. The resulting dim is [C, height, width]
     """
     ori_height, ori_width = img.shape[1:]
     if target_h_w is None:
         ratio = ori_height / IMG_STANDARD_HEIGHT
-        target_h_w = (IMG_STANDARD_HEIGHT, int(ori_width / ratio))
+        target_w = max(int(ori_width / ratio), min_width)
+        target_h_w = (IMG_STANDARD_HEIGHT, target_w)
 
     if (ori_height, ori_width) != target_h_w:
         img = F.resize(torch.from_numpy(img), target_h_w)
