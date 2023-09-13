@@ -50,7 +50,7 @@ class OcrDataset(Dataset):
         return (img, labels) if self.mode != 'test' else (img,)
 
 
-def collate_fn(img_labels: List[Tuple[str, str]], transformers: Callable = None):
+def collate_fn(img_labels: List[Tuple[str, str]], transform: Callable = None):
     test_mode = len(img_labels[0]) == 1
     if test_mode:
         img_list = zip(*img_labels)
@@ -59,8 +59,8 @@ def collate_fn(img_labels: List[Tuple[str, str]], transformers: Callable = None)
         img_list, labels_list = zip(*img_labels)
         label_lengths = torch.tensor([len(labels) for labels in labels_list])
 
-    if transformers is not None:
-        img_list = [transformers(img) for img in img_list]
+    if transform is not None:
+        img_list = [transform(img) for img in img_list]
     img_lengths = torch.tensor([img.size(2) for img in img_list])
     imgs = pad_img_seq(img_list)
     return imgs, img_lengths, labels_list, label_lengths

@@ -17,6 +17,8 @@
 # specific language governing permissions and limitations
 # under the License.
 import random
+import logging
+
 import cv2
 import torch
 import numpy as np
@@ -25,6 +27,8 @@ from albumentations.pytorch import ToTensorV2
 from albumentations.core.transforms_interface import ImageOnlyTransform
 
 from ..utils import normalize_img_array
+
+logger = logging.getLogger(__name__)
 
 
 class RandomStretchAug(alb.Resize):
@@ -150,7 +154,7 @@ class CustomNormalize(ImageOnlyTransform):
 
 def transform_wrap(transform):
     """把albumentations的transform转换成torchvision的transform"""
-    def wrapper(image: torch.Tensor) -> torch.Tensor:
+    def wrapper(ori_image: torch.Tensor) -> torch.Tensor:
         """
 
         Args:
@@ -159,9 +163,13 @@ def transform_wrap(transform):
         Returns: np.ndarray, with shape [C, H, W]
 
         """
-        image = image.numpy()
+        image = ori_image.numpy()
         image = image.transpose((1, 2, 0))  # to: [H, W, C]
-        out = transform(image=image)['image']
+        try:
+            out = transform(image=image)['image']
+        except:
+            logger.error(f"Error when transforming one image with shape: {image.shape}")
+            return ori_image
         out = torch.from_numpy(out.transpose((2, 0, 1)))  # to: [C, H, W]
         return out
     return wrapper
