@@ -140,6 +140,7 @@ def train(
         num_workers=train_config['num_workers'],
         pin_memory=train_config['pin_memory'],
     )
+    data_mod.setup('')
 
     # train_ds = data_mod.train
     # for i in range(min(100, len(train_ds))):
