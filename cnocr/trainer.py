@@ -281,6 +281,7 @@ class PlTrainer(object):
             callbacks.append(checkpoint_callback)
 
         self.pl_trainer = pl.Trainer(
+            gradient_clip_val=1.0,
             limit_train_batches=self.config.get('limit_train_batches', 1.0),
             limit_val_batches=self.config.get('limit_val_batches', 1.0),
             logger=wandb_logger,
