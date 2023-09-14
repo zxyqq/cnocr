@@ -126,22 +126,15 @@ class OcrDataModule(pt.LightningDataModule):
         self.train_collate_fn = CollateFn(self.train_transforms)
         self.val_collate_fn = CollateFn(self.val_transforms)
 
-        self.train = OcrDataset(
-            self.index_dir / 'train.tsv', self.img_folder, mode='train'
-        )
-        self.val = OcrDataset(self.index_dir / 'dev.tsv', self.img_folder, mode='train')
-
     @property
     def vocab_size(self):
         return len(self.vocab)
 
-    def prepare_data(self):
-        # called only on 1 GPU
-        pass
-
-    def setup(self, stage: Optional[str] = None):
-        # called on every GPU
-        pass
+    def setup(self, stage: str):
+        self.train = OcrDataset(
+            self.index_dir / 'train.tsv', self.img_folder, mode='train'
+        )
+        self.val = OcrDataset(self.index_dir / 'dev.tsv', self.img_folder, mode='train')
 
     def train_dataloader(self):
         sampler = BucketSampler(self.train, bucket_size=100000)
