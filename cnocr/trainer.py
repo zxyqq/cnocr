@@ -172,7 +172,7 @@ class WrapperLightningModule(pl.LightningModule):
         res = self.model.calculate_loss(
             batch, return_model_output=True, return_preds=True
         )
-        print(f'train step, cal_loss after: ')
+        # print(f'train step, cal_loss after: ')
 
         # update lr scheduler
         sch = self.lr_schedulers()
@@ -181,7 +181,7 @@ class WrapperLightningModule(pl.LightningModule):
         losses = res['loss']
         preds = self._postprocess_preds(res['preds'])
         reals = self._postprocess_target(res['target'])
-        print(f'train step, postproc after: {reals=}, {preds=}')
+        # print(f'train step, postproc after: {reals=}, {preds=}')
         train_metrics = self.train_metrics.add_batch(
             references=reals, predictions=preds
         )
@@ -193,7 +193,7 @@ class WrapperLightningModule(pl.LightningModule):
             train_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
         self.training_step_outputs.append(losses)
-        print(f'train step, out')
+        # print(f'train step, out')
         return losses
 
     def on_train_epoch_end(self) -> None:
