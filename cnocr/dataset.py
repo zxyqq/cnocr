@@ -22,7 +22,7 @@ from typing import Optional, Union, List, Tuple, Callable
 
 import pytorch_lightning as pt
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, Sampler
 
 from .utils import read_charset, read_tsv_file, read_img, resize_img, pad_img_seq
 
@@ -34,6 +34,14 @@ class OcrDataset(Dataset):
             index_fp, '\t', img_folder, mode
         )
         self.mode = mode
+
+        if self.mode != 'test':
+            # 根据 labels 的长度进行排序
+            sorted_indices = sorted(
+                range(len(self.labels_list)), key=lambda x: len(self.labels_list[x])
+            )
+            self.img_fp_list = [self.img_fp_list[i] for i in sorted_indices]
+            self.labels_list = [self.labels_list[i] for i in sorted_indices]
 
     def __len__(self):
         return len(self.img_fp_list)
@@ -48,6 +56,25 @@ class OcrDataset(Dataset):
             # label_ids = [self.letter2id[l] for l in labels]
 
         return (img, labels) if self.mode != 'test' else (img,)
+
+
+class BucketSampler(Sampler):
+    def __init__(self, data_source, bucket_size=None):
+        super().__init__(data_source)
+        self.data_source = data_source
+        self.bucket_size = bucket_size or len(data_source)
+
+    def __iter__(self):
+        total = len(self.data_source)
+        indices = list(range(total))
+
+        # 每个桶内随机抽样
+        for idx in range(0, total, self.bucket_size):
+            for i in torch.randperm(min(self.bucket_size, total - idx)):
+                yield indices[idx + i]
+
+    def __len__(self):
+        return len(self.data_source)
 
 
 def collate_fn(img_labels: List[Tuple[str, str]], transform: Callable = None):
@@ -117,10 +144,11 @@ class OcrDataModule(pt.LightningDataModule):
         pass
 
     def train_dataloader(self):
+        sampler = BucketSampler(self.train, bucket_size=100000)
         return DataLoader(
             self.train,
             batch_size=self.batch_size,
-            shuffle=True,
+            sampler=sampler,
             collate_fn=self.train_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
