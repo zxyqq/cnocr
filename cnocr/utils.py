@@ -253,11 +253,11 @@ def read_img(path: Union[str, Path], gray=True) -> np.ndarray:
         * when `gray==True`, return a gray image, with dim [height, width, 1], with values range from 0 to 255
         * when `gray==False`, return a color image, with dim [height, width, 3], with values range from 0 to 255
     """
-    img = Image.open(path)
-    if gray:
-        return np.expand_dims(np.array(img.convert('L')), -1)
-    else:
-        return np.asarray(img.convert('RGB'))
+    with Image.open(path) as img:
+        if gray:
+            return np.expand_dims(np.array(img.convert('L')), -1)
+        else:
+            return np.asarray(img.convert('RGB'))
 
 
 def save_img(img: Union[Tensor, np.ndarray], path):
