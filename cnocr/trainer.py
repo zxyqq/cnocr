@@ -192,7 +192,7 @@ class WrapperLightningModule(pl.LightningModule):
         self.log_dict(
             train_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
-        self.training_step_outputs.append(losses)
+        self.training_step_outputs.append(losses.item())
         # print(f'train step, out')
         return losses
 
@@ -202,7 +202,7 @@ class WrapperLightningModule(pl.LightningModule):
             f'train-{k}-epoch': v for k, v in train_metrics.items() if not np.isnan(v)
         }
         train_metrics['train-loss-epoch'] = np.mean(
-            [out.item() for out in self.training_step_outputs]
+            [out for out in self.training_step_outputs]
         )
         self.log_dict(
             train_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True,
@@ -232,7 +232,7 @@ class WrapperLightningModule(pl.LightningModule):
         self.log_dict(
             val_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
-        self.val_step_outputs.append(losses)
+        self.val_step_outputs.append(losses.item())
         return losses
 
     def on_validation_epoch_end(self) -> None:
@@ -240,9 +240,7 @@ class WrapperLightningModule(pl.LightningModule):
         val_metrics = {
             f'val-{k}-epoch': v for k, v in val_metrics.items() if not np.isnan(v)
         }
-        val_metrics['val-loss-epoch'] = np.mean(
-            [out.item() for out in self.val_step_outputs]
-        )
+        val_metrics['val-loss-epoch'] = np.mean([out for out in self.val_step_outputs])
         self.log_dict(
             val_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True,
         )
