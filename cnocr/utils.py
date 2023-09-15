@@ -141,7 +141,7 @@ def check_sha1(filename, sha1_hash):
 
 
 def download(url, path=None, overwrite=False, sha1_hash=None):
-    """Download an given URL
+    """Download a given URL
     Parameters
     ----------
     url : str
@@ -292,7 +292,7 @@ def resize_img(
         target_h_w = (IMG_STANDARD_HEIGHT, target_w)
 
     if (ori_height, ori_width) != target_h_w:
-        img = F.resize(torch.from_numpy(img), target_h_w)
+        img = F.resize(torch.from_numpy(img), target_h_w, antialias=True)
         if not return_torch:
             img = img.numpy()
     elif return_torch:
