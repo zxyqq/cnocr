@@ -159,7 +159,7 @@ class OcrModel(nn.Module):
 
     @classmethod
     def from_name(cls, name: str, vocab: List[str]):
-        encoder_name, decoder_name = name.rsplit('-', maxsplit=1)
+        encoder_name, decoder_name = name.split('-')[-2:]
         encoder, encoder_out_len = EncoderManager.gen_encoder(encoder_name)
         decoder, decoder_out_len = DecoderManager.gen_decoder(
             encoder_out_len, decoder_name

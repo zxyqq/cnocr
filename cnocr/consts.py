@@ -18,6 +18,7 @@
 # under the License.
 
 import string
+from collections import OrderedDict
 from pathlib import Path
 from typing import Tuple, Set, Dict, Any, Optional, Union
 import logging
@@ -33,7 +34,8 @@ logger = logging.getLogger(__name__)
 MODEL_VERSION = '.'.join(__version__.split('.', maxsplit=2)[:2])
 
 IMG_STANDARD_HEIGHT = 32
-VOCAB_FP = Path(__file__).parent / 'label_cn.txt'
+CN_VOCAB_FP = Path(__file__).parent.absolute() / 'label_cn.txt'
+NUMBER_VOCAB_FP = Path(__file__).parent.absolute() / 'label_number.txt'
 
 ENCODER_CONFIGS = {
     'densenet': {  # 长度压缩至 1/8（seq_len == 35），输出的向量长度为 4*128 = 512
@@ -125,18 +127,26 @@ DECODER_CONFIGS = {
     'gru_large': {'rnn_units': 512,},
     'fc': {'hidden_size': 128, 'dropout': 0.1,},
     'fc_base': {'hidden_size': 256, 'dropout': 0.3,},
-    'fc_large': {'hidden_size': 512, 'dropout': 0.4, },
+    'fc_large': {'hidden_size': 512, 'dropout': 0.4,},
 }
 
 
 HF_HUB_REPO_ID = "breezedeus/cnstd-cnocr-models"
 HF_HUB_SUBFOLDER = "models/cnocr/%s" % MODEL_VERSION
+PAID_HF_HUB_REPO_ID = "breezedeus/paid-models"
+PAID_HF_HUB_SUBFOLDER = "cnocr/%s" % MODEL_VERSION
 
 
-def format_hf_hub_url(url: str) -> dict:
+def format_hf_hub_url(url: str, is_paid_model=False) -> dict:
+    if is_paid_model:
+        repo_id = PAID_HF_HUB_REPO_ID
+        subfolder = PAID_HF_HUB_SUBFOLDER
+    else:
+        repo_id = HF_HUB_REPO_ID
+        subfolder = HF_HUB_SUBFOLDER
     return {
-        'repo_id': HF_HUB_REPO_ID,
-        'subfolder': HF_HUB_SUBFOLDER,
+        'repo_id': repo_id,
+        'subfolder': subfolder,
         'filename': url,
     }
 
@@ -145,18 +155,108 @@ class AvailableModels(object):
     CNOCR_SPACE = '__cnocr__'
 
     # name: (epoch, url)
-    CNOCR_MODELS = {
-        ('densenet_lite_114-fc', 'pytorch'): (37, 'densenet_lite_114-fc.zip'),
-        ('densenet_lite_124-fc', 'pytorch'): (39, 'densenet_lite_124-fc.zip'),
-        ('densenet_lite_134-fc', 'pytorch'): (34, 'densenet_lite_134-fc.zip'),
-        ('densenet_lite_136-fc', 'pytorch'): (39, 'densenet_lite_136-fc.zip'),
-        ('densenet_lite_114-fc', 'onnx'): (37, 'densenet_lite_114-fc-onnx.zip'),
-        ('densenet_lite_124-fc', 'onnx'): (39, 'densenet_lite_124-fc-onnx.zip'),
-        ('densenet_lite_134-fc', 'onnx'): (34, 'densenet_lite_134-fc-onnx.zip'),
-        ('densenet_lite_136-fc', 'onnx'): (39, 'densenet_lite_136-fc-onnx.zip'),
-        ('densenet_lite_134-gru', 'pytorch'): (2, 'densenet_lite_134-gru.zip'),
-        ('densenet_lite_136-gru', 'pytorch'): (2, 'densenet_lite_136-gru.zip'),
-    }
+    FREE_MODELS = OrderedDict(
+        {
+            ('densenet_lite_114-fc', 'pytorch'): {
+                'epoch': 37,
+                'url': 'densenet_lite_114-fc.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_124-fc', 'pytorch'): {
+                'epoch': 39,
+                'url': 'densenet_lite_124-fc.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_134-fc', 'pytorch'): {
+                'epoch': 34,
+                'url': 'densenet_lite_134-fc.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_136-fc', 'pytorch'): {
+                'epoch': 39,
+                'url': 'densenet_lite_136-fc.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_114-fc', 'onnx'): {
+                'epoch': 37,
+                'url': 'densenet_lite_114-fc-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_124-fc', 'onnx'): {
+                'epoch': 39,
+                'url': 'densenet_lite_124-fc-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_134-fc', 'onnx'): {
+                'epoch': 34,
+                'url': 'densenet_lite_134-fc-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_136-fc', 'onnx'): {
+                'epoch': 39,
+                'url': 'densenet_lite_136-fc-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_134-gru', 'pytorch'): {
+                'epoch': 2,
+                'url': 'densenet_lite_134-gru.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_134-gru', 'onnx'): {
+                'epoch': 2,
+                'url': 'densenet_lite_134-gru-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_136-gru', 'pytorch'): {
+                'epoch': 2,
+                'url': 'densenet_lite_136-gru.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_136-gru', 'onnx'): {
+                'epoch': 2,
+                'url': 'densenet_lite_136-gru-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('number-densenet_lite_136-fc', 'pytorch'): {
+                'epoch': 23,
+                'url': 'number-densenet_lite_136-fc.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+            ('number-densenet_lite_136-fc', 'onnx'): {
+                'epoch': 23,
+                'url': 'number-densenet_lite_136-fc-onnx.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+        }
+    )
+
+    PAID_MODELS = OrderedDict(
+        {
+            ('number-densenet_lite_136-gru', 'pytorch'): {
+                'epoch': 29,
+                'url': 'number-densenet_lite_136-gru.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+            ('number-densenet_lite_136-gru', 'onnx'): {
+                'epoch': 29,
+                'url': 'number-densenet_lite_136-gru-onnx.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+            ('number-densenet_lite_666-gru_large', 'pytorch'): {
+                'epoch': 2,
+                'url': 'number-densenet_lite_666-gru_large.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+            ('number-densenet_lite_666-gru_large', 'onnx'): {
+                'epoch': 2,
+                'url': 'number-densenet_lite_666-gru_large-onnx.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+        }
+    )
+
+    CNOCR_MODELS = deepcopy(FREE_MODELS)
+    CNOCR_MODELS.update(PAID_MODELS)
     OUTER_MODELS = {}
 
     def all_models(self) -> Set[Tuple[str, str]]:
@@ -188,23 +288,25 @@ class AvailableModels(object):
         self, model_name: str, model_backend: str
     ) -> Optional[Union[str, Path]]:
         if (model_name, model_backend) in self.CNOCR_MODELS:
-            return VOCAB_FP
+            return self.CNOCR_MODELS[(model_name, model_backend)]['vocab_fp']
         elif (model_name, model_backend) in self.OUTER_MODELS:
             return self.OUTER_MODELS[(model_name, model_backend)]['vocab_fp']
         else:
             logger.warning(
-                'no url is found for model %s' % ((model_name, model_backend),)
+                'no vocab_fp is found for model %s' % ((model_name, model_backend),)
             )
             return None
 
     def get_epoch(self, model_name, model_backend) -> Optional[int]:
         if (model_name, model_backend) in self.CNOCR_MODELS:
-            return self.CNOCR_MODELS[(model_name, model_backend)][0]
+            return self.CNOCR_MODELS[(model_name, model_backend)]['epoch']
         return None
 
     def get_url(self, model_name, model_backend) -> Optional[dict]:
+        is_paid_model = False
         if (model_name, model_backend) in self.CNOCR_MODELS:
-            url = self.CNOCR_MODELS[(model_name, model_backend)][1]
+            url = self.CNOCR_MODELS[(model_name, model_backend)]['url']
+            is_paid_model = (model_name, model_backend) in self.PAID_MODELS
         elif (model_name, model_backend) in self.OUTER_MODELS:
             url = self.OUTER_MODELS[(model_name, model_backend)]['url']
         else:
@@ -212,7 +314,7 @@ class AvailableModels(object):
                 'no url is found for model %s' % ((model_name, model_backend),)
             )
             return None
-        url = format_hf_hub_url(url)
+        url = format_hf_hub_url(url, is_paid_model=is_paid_model)
         return url
 
 

@@ -14,7 +14,7 @@ train:
 
 # 训练模型
 train-number-pure:
-	cnocr train -m $(MODEL_NAME) --index-dir data/number-pure-index --train-config-fp docs/examples/train_config_number.json
+	cnocr train -m number-$(MODEL_NAME) --index-dir data/number-pure-index --train-config-fp docs/examples/train_config_number.json
 
 # 在测试集上评估模型，所有badcases的具体信息会存放到文件夹 `evaluate/$(MODEL_NAME)` 中
 evaluate:
