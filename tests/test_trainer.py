@@ -14,7 +14,7 @@ INDEX_DIR = Path(__file__).parent.parent / 'data/test'
 IMAGE_DIR = Path(__file__).parent.parent / 'data/images'
 
 from cnocr import gen_model
-from cnocr.consts import VOCAB_FP
+from cnocr.consts import CN_VOCAB_FP
 from cnocr.data_utils.aug import NormalizeAug
 from cnocr.dataset import OcrDataModule
 from cnocr.trainer import PlTrainer
@@ -34,7 +34,7 @@ val_transform = NormalizeAug()
 def test_trainer():
     data_mod = OcrDataModule(
         index_dir=INDEX_DIR,
-        vocab_fp=VOCAB_FP,
+        vocab_fp=CN_VOCAB_FP,
         img_folder=IMAGE_DIR,
         train_transforms=train_transform,
         val_transforms=val_transform,

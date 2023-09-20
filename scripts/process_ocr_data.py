@@ -22,7 +22,7 @@ import os
 import re
 import unicodedata
 
-from cnocr.consts import VOCAB_FP
+from cnocr.consts import CN_VOCAB_FP
 from cnocr.utils import read_charset, read_tsv_file, set_logger
 
 
@@ -71,7 +71,7 @@ def stringQ2B(ustring):
 
 
 def process_baidu_innovation():
-    vocab, letter2id = read_charset(VOCAB_FP)
+    vocab, letter2id = read_charset(CN_VOCAB_FP)
     baidu_index_fp = (
         '/Users/king/Documents/beiye-Ein/语料/text-detection/baidu-innovation/train.list'
     )
@@ -109,7 +109,7 @@ def read_csv(fp, letter2id):
 
 
 def process_baidu_basic():
-    vocab, letter2id = read_charset(VOCAB_FP)
+    vocab, letter2id = read_charset(CN_VOCAB_FP)
     baidu_index_fp = (
         '/Users/king/Documents/beiye-Ein/语料/text-detection/baidu-basic/train_label.csv'
     )

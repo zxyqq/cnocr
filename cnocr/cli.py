@@ -137,6 +137,7 @@ def train(
         train_transforms=train_transform,
         val_transforms=val_transform,
         batch_size=train_config['batch_size'],
+        train_bucket_size=train_config.get('train_bucket_size'),
         num_workers=train_config['num_workers'],
         pin_memory=train_config['pin_memory'],
     )
@@ -191,6 +192,13 @@ def visualize_example(example, fp_prefix):
     help='识别模型类型。默认值为 `onnx`',
 )
 @click.option(
+    '-v',
+    '--rec-vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
     '-d',
     '--det-model-name',
     type=str,
@@ -233,6 +241,7 @@ def visualize_example(example, fp_prefix):
 def predict(
     rec_model_name,
     rec_model_backend,
+    rec_vocab_fp,
     det_model_name,
     det_model_backend,
     pretrained_model_fp,
@@ -259,6 +268,7 @@ def predict(
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
+        rec_vocab_fp=rec_vocab_fp,
         det_model_name=det_model_name,
         det_model_backend=det_model_backend,
         rec_model_fp=pretrained_model_fp,
@@ -487,10 +497,12 @@ def resave_model_file(
     resave_model(input_model_fp, output_model_fp, map_location='cpu')
 
 
-def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
+def export_to_onnx(model_name, vocab_fp, output_model_fp, input_model_fp=None):
     import onnx
 
-    ocr = Recognizer(model_name, model_fp=input_model_fp)
+    ocr = Recognizer(
+        model_name, model_backend='pytorch', model_fp=input_model_fp, vocab_fp=vocab_fp,
+    )
     model = ocr._model
 
     x = torch.randn(1, 1, 32, 280)
@@ -530,6 +542,13 @@ def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
     help='识别模型名称。默认值为 `%s`' % DEFAULT_MODEL_NAME,
 )
 @click.option(
+    '-v',
+    '--rec-vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
     '-i',
     '--input-model-fp',
     type=str,
@@ -540,13 +559,13 @@ def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
     '-o', '--output-model-fp', type=str, required=True, help='输出的识别模型文件路径（.onnx）'
 )
 def export_onnx_model(
-    rec_model_name, input_model_fp, output_model_fp,
+    rec_model_name, rec_vocab_fp, input_model_fp, output_model_fp,
 ):
     """把训练好的识别模型导出为 ONNX 格式。
     当前无法导出 `*-gru` 模型， 具体说明见：https://discuss.pytorch.org/t/exporting-gru-rnn-to-onnx/27244 ，
     后续版本会修复此问题。
     """
-    export_to_onnx(rec_model_name, output_model_fp, input_model_fp)
+    export_to_onnx(rec_model_name, rec_vocab_fp, output_model_fp, input_model_fp)
 
 
 @cli.command('serve')
