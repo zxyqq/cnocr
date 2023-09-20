@@ -28,11 +28,12 @@ from .utils import read_charset, read_tsv_file, read_img, resize_img, pad_img_se
 
 
 class OcrDataset(Dataset):
-    def __init__(self, index_fp, img_folder=None, mode='train'):
+    def __init__(self, index_fp, img_folder=None, transforms=None, mode='train'):
         super().__init__()
         self.img_fp_list, self.labels_list = read_tsv_file(
             index_fp, '\t', img_folder, mode
         )
+        self.transforms = transforms
         self.mode = mode
 
         if self.mode != 'test':
@@ -50,6 +51,8 @@ class OcrDataset(Dataset):
         img_fp = self.img_fp_list[item]
         img = read_img(img_fp).transpose((2, 0, 1))  # res: [1, H, W]
         img = resize_img(img)
+        if self.transforms is not None:
+            img = self.transforms(img)
 
         if self.mode != 'test':
             labels = self.labels_list[item]
@@ -59,7 +62,13 @@ class OcrDataset(Dataset):
 
 
 class BucketSampler(Sampler):
-    def __init__(self, data_source, bucket_size=None):
+    def __init__(self, data_source, bucket_size: Optional[int]=None):
+        """
+
+        Args:
+            data_source (Dataset): dataset
+            bucket_size (Optional[int]): bucket size
+        """
         super().__init__(data_source)
         self.data_source = data_source
         self.bucket_size = bucket_size or len(data_source)
@@ -77,7 +86,7 @@ class BucketSampler(Sampler):
         return len(self.data_source)
 
 
-def collate_fn(img_labels: List[Tuple[str, str]], transform: Callable = None):
+def collate_fn(img_labels: List[Tuple[str, str]]):
     test_mode = len(img_labels[0]) == 1
     if test_mode:
         img_list = zip(*img_labels)
@@ -86,19 +95,17 @@ def collate_fn(img_labels: List[Tuple[str, str]], transform: Callable = None):
         img_list, labels_list = zip(*img_labels)
         label_lengths = torch.tensor([len(labels) for labels in labels_list])
 
-    if transform is not None:
-        img_list = [transform(img) for img in img_list]
     img_lengths = torch.tensor([img.size(2) for img in img_list])
     imgs = pad_img_seq(img_list)
     return imgs, img_lengths, labels_list, label_lengths
 
 
-class CollateFn(object):
-    def __init__(self, transform):
-        self.transform = transform
-
-    def __call__(self, img_labels):
-        return collate_fn(img_labels, self.transform)
+# class CollateFn(object):
+#     def __init__(self, transform):
+#         self.transform = transform
+#
+#     def __call__(self, img_labels):
+#         return collate_fn(img_labels, self.transform)
 
 
 class OcrDataModule(pt.LightningDataModule):
@@ -110,6 +117,7 @@ class OcrDataModule(pt.LightningDataModule):
         train_transforms=None,
         val_transforms=None,
         batch_size: int = 64,
+        train_bucket_size: Optional[int] = None,
         num_workers: int = 0,
         pin_memory: bool = False,
     ):
@@ -120,11 +128,12 @@ class OcrDataModule(pt.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.pin_memory = pin_memory
+        self.train_bucket_size = train_bucket_size
 
         self.train_transforms = train_transforms
         self.val_transforms = val_transforms
-        self.train_collate_fn = CollateFn(self.train_transforms)
-        self.val_collate_fn = CollateFn(self.val_transforms)
+        # self.train_collate_fn = CollateFn(self.train_transforms)
+        # self.val_collate_fn = CollateFn(self.val_transforms)
 
     @property
     def vocab_size(self):
@@ -132,17 +141,25 @@ class OcrDataModule(pt.LightningDataModule):
 
     def setup(self, stage: str):
         self.train = OcrDataset(
-            self.index_dir / 'train.tsv', self.img_folder, mode='train'
+            self.index_dir / 'train.tsv',
+            self.img_folder,
+            transforms=self.train_transforms,
+            mode='train',
         )
-        self.val = OcrDataset(self.index_dir / 'dev.tsv', self.img_folder, mode='train')
+        self.val = OcrDataset(
+            self.index_dir / 'dev.tsv',
+            self.img_folder,
+            transforms=self.val_transforms,
+            mode='train',
+        )
 
     def train_dataloader(self):
-        sampler = BucketSampler(self.train, bucket_size=100000)
+        sampler = BucketSampler(self.train, bucket_size=self.train_bucket_size)
         return DataLoader(
             self.train,
             batch_size=self.batch_size,
             sampler=sampler,
-            collate_fn=self.train_collate_fn,
+            collate_fn=collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
@@ -152,7 +169,7 @@ class OcrDataModule(pt.LightningDataModule):
             self.val,
             batch_size=self.batch_size,
             shuffle=False,
-            collate_fn=self.val_collate_fn,
+            collate_fn=collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
