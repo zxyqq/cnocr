@@ -38,7 +38,7 @@ package:
 	rm -rf build
 	python setup.py sdist bdist_wheel
 
-VERSION = 2.2.3.2
+VERSION = 2.2.4
 upload:
 	python -m twine upload  dist/cnocr-$(VERSION)* --verbose
 
