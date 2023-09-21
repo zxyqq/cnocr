@@ -30,6 +30,7 @@ from multiprocessing import Process
 import subprocess
 
 import click
+import torchmetrics
 from torchvision import transforms as T
 import torch
 
@@ -45,7 +46,7 @@ from cnocr.utils import (
 from cnocr.data_utils.aug import NormalizeAug
 from cnocr.data_utils.transforms import train_transform, test_transform
 from cnocr.dataset import OcrDataModule
-from cnocr.trainer import PlTrainer, resave_model
+from cnocr.trainer import PlTrainer, resave_model, Metrics
 from cnocr import CnOcr, gen_model
 from cnocr.recognizer import Recognizer
 
@@ -328,6 +329,13 @@ def predict(
     help='识别模型类型。默认值为 `onnx`',
 )
 @click.option(
+    '-v',
+    '--rec-vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
     '-p',
     '--pretrained-model-fp',
     type=str,
@@ -363,6 +371,7 @@ def predict(
 def evaluate(
     rec_model_name,
     rec_model_backend,
+    rec_vocab_fp,
     pretrained_model_fp,
     context,
     eval_index_fp,
@@ -372,17 +381,10 @@ def evaluate(
     verbose,
 ):
     """评估模型效果。检测模型使用 `det_model_name='naive_det'` 。"""
-    try:
-        import Levenshtein
-    except Exception as e:
-        logger.error(e)
-        logger.error(
-            'try to install the package by using `pip install python-Levenshtein`'
-        )
-        return
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
+        rec_vocab_fp=rec_vocab_fp,
         rec_model_fp=pretrained_model_fp,
         det_model_name='naive_det',
         context=context,
@@ -390,6 +392,12 @@ def evaluate(
 
     fn_labels_list = read_input_file(eval_index_fp)
 
+    metrics_config = {
+        "complete_match": {},
+        "cer": {}
+    }
+    metrics = Metrics.from_config(metrics_config)
+    cer = torchmetrics.CharErrorRate()
     miss_cnt, redundant_cnt = Counter(), Counter()
     total_time_cost = 0.0
     bad_cnt = 0
@@ -400,7 +408,7 @@ def evaluate(
         logger.info('start_idx: %d', start_idx)
         batch = fn_labels_list[start_idx : start_idx + batch_size]
         img_fps = [os.path.join(img_folder, fn) for fn, _ in batch]
-        reals = [labels for _, labels in batch]
+        reals = [''.join(labels) for _, labels in batch]
 
         imgs = [read_img(img) for img in img_fps]
         start_time = time.time()
@@ -408,10 +416,11 @@ def evaluate(
         total_time_cost += time.time() - start_time
 
         preds = [out['text'] for out in outs]
+        metrics.add_batch(reals, preds)
         for bad_info in compare_preds_to_reals(preds, reals, img_fps):
             if verbose:
                 logger.info('\t'.join(bad_info))
-            distance = Levenshtein.distance(bad_info[1], bad_info[2])
+            distance = float(cer(preds=bad_info[2], target=bad_info[1]))
             bad_info.insert(0, distance)
             badcases.append(bad_info)
             miss_cnt.update(list(bad_info[-2]))
@@ -420,6 +429,7 @@ def evaluate(
 
         start_idx += batch_size
 
+    results = metrics.compute()
     badcases.sort(key=itemgetter(0), reverse=True)
 
     output_dir = Path(output_dir)
@@ -448,6 +458,7 @@ def evaluate(
         for word, num in redundant_cnt.most_common():
             f.write('\t'.join([word, str(num)]) + '\n')
 
+    logger.info(f'metrics: {results}')
     logger.info(
         "number of total cases: %d, number of bad cases: %d, acc: %.4f, time cost per image: %f"
         % (
@@ -457,6 +468,7 @@ def evaluate(
             total_time_cost / len(fn_labels_list),
         )
     )
+    logger.info(f'more detailed infos can be found in the dir: {output_dir}')
 
 
 def read_input_file(in_fp):
