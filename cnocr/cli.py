@@ -356,7 +356,7 @@ def predict(
     help='待评估文件所在的索引文件，格式与训练时训练集索引文件相同，每行格式为 `<图片路径>\t<以空格分割的labels>`',
     default='test.txt',
 )
-@click.option("--img-folder", required=True, help="图片所在文件夹，相对于索引文件中记录的图片位置")
+@click.option("--image-folder", required=True, help="图片所在文件夹，相对于索引文件中记录的图片位置")
 @click.option("--batch-size", type=int, help="batch size. 默认值：128", default=128)
 @click.option(
     '-o',
