@@ -52,7 +52,7 @@ required = [
     "cnstd>=1.2.3.2",
 ]
 extras_require = {
-    "dev": ["pip-tools", "pytest", "python-Levenshtein"],
+    "dev": ["pip-tools", "pytest"],
     "serve": ["uvicorn[standard]", "fastapi", "python-multipart", "pydantic"],
 }
 
