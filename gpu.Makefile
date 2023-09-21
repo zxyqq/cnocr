@@ -12,7 +12,7 @@ train:
 
 # 训练模型
 train-number-pure:
-    CUDA_VISIBLE_DEVICES=1 cnocr train -m number-$(MODEL_NAME) --index-dir data/output_number_pure --train-config-fp docs/examples/train_config_number.json
+	CUDA_VISIBLE_DEVICES=1 cnocr train -m number-$(MODEL_NAME) --index-dir data/output_number_pure --train-config-fp docs/examples/train_config_number.json
 
 evaluate-number-pure:
 	cnocr evaluate -m number-$(MODEL_NAME) -i data/output_number_pure/dev.tsv --image-folder data/output_number_pure --batch-size 128 -c cuda:0 -o eval_results/number-$(MODEL_NAME)
