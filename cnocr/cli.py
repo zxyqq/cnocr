@@ -365,9 +365,6 @@ def predict(
     default='eval_results',
     help='存放评估结果的文件夹。默认值：`eval_results`',
 )
-@click.option(
-    "-v", "--verbose", is_flag=True, help="whether to print details to screen",
-)
 def evaluate(
     rec_model_name,
     rec_model_backend,
