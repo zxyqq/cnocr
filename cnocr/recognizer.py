@@ -130,7 +130,9 @@ class Recognizer(object):
             self._assert_and_prepare_model_files(model_fp, root)
 
         if vocab_fp is None:
-            vocab_fp = AVAILABLE_MODELS.get_vocab_fp(self._model_name, self._model_backend)
+            vocab_fp = AVAILABLE_MODELS.get_vocab_fp(
+                self._model_name, self._model_backend
+            )
         self._vocab, self._letter2id = read_charset(vocab_fp)
         self.postprocessor = CTCPostProcessor(vocab=self._vocab)
 
@@ -140,7 +142,9 @@ class Recognizer(object):
         self._model = self._get_model(context)
 
     def _assert_and_prepare_model_files(self, model_fp, root):
-        self._model_file_prefix = '{}-{}'.format(self.MODEL_FILE_PREFIX, self._model_name)
+        self._model_file_prefix = '{}-{}'.format(
+            self.MODEL_FILE_PREFIX, self._model_name
+        )
         model_epoch = AVAILABLE_MODELS.get_epoch(self._model_name, self._model_backend)
 
         if model_epoch is not None:
@@ -190,7 +194,10 @@ class Recognizer(object):
         elif self._model_backend == 'onnx':
             import onnxruntime
 
-            model = onnxruntime.InferenceSession(self._model_fp)
+            model = onnxruntime.InferenceSession(
+                self._model_fp,
+                providers=['AzureExecutionProvider', 'CPUExecutionProvider'],
+            )
         else:
             raise NotImplementedError(f'{self._model_backend} is not supported yet')
 
