@@ -375,7 +375,7 @@ def evaluate(
     pretrained_model_fp,
     context,
     eval_index_fp,
-    img_folder,
+    image_folder,
     batch_size,
     output_dir,
     verbose,
@@ -407,7 +407,7 @@ def evaluate(
     while start_idx < len(fn_labels_list):
         logger.info('start_idx: %d', start_idx)
         batch = fn_labels_list[start_idx : start_idx + batch_size]
-        img_fps = [os.path.join(img_folder, fn) for fn, _ in batch]
+        img_fps = [os.path.join(image_folder, fn) for fn, _ in batch]
         reals = [''.join(labels) for _, labels in batch]
 
         imgs = [read_img(img) for img in img_fps]
