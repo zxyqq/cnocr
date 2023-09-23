@@ -192,11 +192,10 @@ class Recognizer(object):
             model.to(self.context)
             model = load_model_params(model, self._model_fp, context)
         elif self._model_backend == 'onnx':
-            import onnxruntime
+            import onnxruntime as ort
 
-            model = onnxruntime.InferenceSession(
-                self._model_fp,
-                providers=['AzureExecutionProvider', 'CPUExecutionProvider'],
+            model = ort.InferenceSession(
+                self._model_fp, providers=ort.get_available_providers(),
             )
         else:
             raise NotImplementedError(f'{self._model_backend} is not supported yet')
