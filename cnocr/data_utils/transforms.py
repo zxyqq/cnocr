@@ -32,6 +32,108 @@ from ..utils import normalize_img_array
 logger = logging.getLogger(__name__)
 
 
+class Erosion(ImageOnlyTransform):
+    """
+    From Nougat: https://github.com/facebookresearch/nougat/blob/main/nougat/transforms.py .
+    Apply erosion operation to an image.
+
+    Erosion is a morphological operation that shrinks the white regions in a binary image.
+
+    Args:
+        scale (int or tuple/list of int): The scale or range for the size of the erosion kernel.
+            If an integer is provided, a square kernel of that size will be used.
+            If a tuple or list is provided, it should contain two integers representing the minimum
+            and maximum sizes for the erosion kernel.
+        always_apply (bool, optional): Whether to always apply this transformation. Default is False.
+        p (float, optional): The probability of applying this transformation. Default is 0.5.
+
+    Returns:
+        numpy.ndarray: The transformed image.
+    """
+
+    def __init__(self, scale, always_apply=False, p=0.5):
+        super().__init__(always_apply=always_apply, p=p)
+        if type(scale) is tuple or type(scale) is list:
+            assert len(scale) == 2
+            self.scale = scale
+        else:
+            self.scale = (scale, scale)
+
+    def apply(self, img, **params):
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE, tuple(np.random.randint(self.scale[0], self.scale[1], 2))
+        )
+        img = cv2.erode(img, kernel, iterations=1)
+        if img.ndim == 2:
+            img = np.expand_dims(img, axis=-1)
+        return img
+
+
+class Dilation(ImageOnlyTransform):
+    """
+    From Nougat: https://github.com/facebookresearch/nougat/blob/main/nougat/transforms.py .
+    Apply dilation operation to an image.
+
+    Dilation is a morphological operation that expands the white regions in a binary image.
+
+    Args:
+        scale (int or tuple/list of int): The scale or range for the size of the dilation kernel.
+            If an integer is provided, a square kernel of that size will be used.
+            If a tuple or list is provided, it should contain two integers representing the minimum
+            and maximum sizes for the dilation kernel.
+        always_apply (bool, optional): Whether to always apply this transformation. Default is False.
+        p (float, optional): The probability of applying this transformation. Default is 0.5.
+
+    Returns:
+        numpy.ndarray: The transformed image.
+    """
+
+    def __init__(self, scale, always_apply=False, p=0.5):
+        super().__init__(always_apply=always_apply, p=p)
+        if type(scale) is tuple or type(scale) is list:
+            assert len(scale) == 2
+            self.scale = scale
+        else:
+            self.scale = (scale, scale)
+
+    def apply(self, img, **params):
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE, tuple(np.random.randint(self.scale[0], self.scale[1], 2))
+        )
+        img = cv2.dilate(img, kernel, iterations=1)
+        if img.ndim == 2:
+            img = np.expand_dims(img, axis=-1)
+        return img
+
+
+class Bitmap(ImageOnlyTransform):
+    """
+    From Nougat: https://github.com/facebookresearch/nougat/blob/main/nougat/transforms.py .
+    Apply a bitmap-style transformation to an image.
+
+    This transformation replaces all pixel values below a certain threshold with a specified value.
+
+    Args:
+        value (int, optional): The value to replace pixels below the threshold with. Default is 0.
+        lower (int, optional): The threshold value below which pixels will be replaced. Default is 200.
+        always_apply (bool, optional): Whether to always apply this transformation. Default is False.
+        p (float, optional): The probability of applying this transformation. Default is 0.5.
+
+    Returns:
+        numpy.ndarray: The transformed image.
+    """
+
+    def __init__(self, value=0, lower=200, always_apply=False, p=0.5):
+        super().__init__(always_apply=always_apply, p=p)
+        self.lower = lower
+        self.value = value
+
+    def apply(self, img, **params):
+        img = img.copy()
+        img[img < self.lower] = self.value
+        return img
+
+
 class RandomStretchAug(alb.Resize):
     def __init__(
         self, min_ratio=0.9, max_ratio=1.1, min_width=8, always_apply=False, p=1
@@ -154,6 +256,8 @@ class TransparentOverlay(ImageOnlyTransform):
 
 class ToSingleChannelGray(ImageOnlyTransform):
     def apply(self, img, **params):  # -> [H, W, 1]
+        if img.ndim == 2:
+            img = np.expand_dims(img, axis=-1)
         if img.shape[2] != 1:
             gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
             return gray[:, :, np.newaxis]  # Add an extra channel dimension
@@ -175,9 +279,9 @@ class TransformWrapper(object):
         把albumentations的transform转换成torchvision的transform。
 
         Args:
-            image (np.ndarray): with shape [C, H, W]
+            image (torch.Tensor): with shape [C, H, W]
 
-        Returns: np.ndarray, with shape [C, H, W]
+        Returns: torch.Tensor, with shape [C, H, W]
 
         """
         image = ori_image.numpy()
@@ -190,6 +294,9 @@ class TransformWrapper(object):
             traceback.print_exc()
             logger.error(e)
             return ori_image.to(torch.float32)
+
+        if image.ndim > out.ndim:
+            out = np.expand_dims(out, axis=-1)
         out = torch.from_numpy(out.transpose((2, 0, 1)))  # to: [C, H, W]
         return out
 
@@ -197,32 +304,46 @@ class TransformWrapper(object):
 _train_alb_transform = alb.Compose(
     [
         CustomRandomCrop((8, 10), p=0.8),
+        alb.OneOf([Erosion((2, 3)), Dilation((2, 3))], p=0.1),
+        TransparentOverlay(1.0, 0.1, alpha=0.4, p=0.2),  # 半透明的矩形框覆盖
+        alb.Affine(shear={"x": (0, 3), "y": (-3, 0)}, cval=(255, 255, 255), p=0.03),
+        alb.ShiftScaleRotate(
+            shift_limit_x=(0, 0.04),
+            shift_limit_y=(0, 0.03),
+            scale_limit=(-0.15, 0.03),
+            rotate_limit=2,
+            border_mode=0,
+            interpolation=2,
+            value=(255, 255, 255),
+            p=0.03,
+        ),
+        alb.GridDistortion(
+            distort_limit=0.05,
+            border_mode=0,
+            interpolation=2,
+            value=(255, 255, 255),
+            p=0.04,
+        ),
         alb.Compose(
             [
-                alb.ShiftScaleRotate(
-                    shift_limit=0,
-                    scale_limit=(-0.15, 0),
-                    rotate_limit=1,
-                    border_mode=0,
-                    interpolation=3,
-                    value=[255, 255, 255],
-                    p=1,
+                alb.Affine(
+                    translate_px=(0, 2), always_apply=True, cval=(255, 255, 255)
                 ),
-                alb.GridDistortion(
-                    distort_limit=0.1,
+                alb.ElasticTransform(
+                    p=1,
+                    alpha=50,
+                    sigma=120 * 0.1,
+                    alpha_affine=0.1,  #120 * 0.01,
                     border_mode=0,
-                    interpolation=3,
-                    value=[255, 255, 255],
-                    p=0.5,
+                    value=(255, 255, 255),
                 ),
             ],
-            p=0.15,
+            p=0.1,
         ),
-        # alb.RGBShift(r_shift_limit=15, g_shift_limit=15, b_shift_limit=15, p=0.3),
-        alb.GaussNoise(10, p=0.2),
-        alb.RandomBrightnessContrast(0.05, (-0.2, 0), True, p=0.2),
+        alb.RandomBrightnessContrast(0.1, 0.1, True, p=0.1),
         alb.ImageCompression(95, p=0.3),
-        TransparentOverlay(1.0, 0.1, alpha=0.4, p=0.2),  # 半透明的矩形框覆盖
+        alb.GaussNoise(20, p=0.2),
+        alb.GaussianBlur((3, 3), p=0.1),
         alb.Emboss(p=0.3, alpha=(0.2, 0.5), strength=(0.2, 0.7)),
         alb.OpticalDistortion(
             always_apply=False,
@@ -234,20 +355,7 @@ _train_alb_transform = alb.Compose(
             value=(0, 0, 0),
             mask_value=None,
         ),
-        alb.Sharpen(always_apply=False, p=0.3, alpha=(0.2, 0.5), lightness=(0.5, 1.0)),
-        alb.ElasticTransform(
-            always_apply=False,
-            p=0.3,
-            alpha=0.1,
-            sigma=10.07,
-            alpha_affine=0.1,
-            interpolation=0,
-            border_mode=0,
-            value=(255, 255, 255),
-            mask_value=None,
-            approximate=False,
-            same_dxdy=False,
-        ),
+        # alb.Sharpen(always_apply=False, p=0.3, alpha=(0.2, 0.5), lightness=(0.5, 1.0)),
         RandomStretchAug(min_ratio=0.5, max_ratio=1.5, p=0.2, always_apply=False),
         alb.InvertImg(p=0.3),
         ToSingleChannelGray(always_apply=True),

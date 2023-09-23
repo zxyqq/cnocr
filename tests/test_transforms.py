@@ -26,7 +26,13 @@ import albumentations as alb
 import matplotlib.pyplot as plt
 
 from cnocr import read_img
-from cnocr.data_utils.transforms import CustomRandomCrop, _train_alb_transform, transform_wrap
+from cnocr.data_utils.transforms import (
+    Erosion,
+    Dilation,
+    CustomRandomCrop,
+    _train_alb_transform,
+    TransformWrapper,
+)
 
 
 def test_custom_random_crop():
@@ -35,9 +41,7 @@ def test_custom_random_crop():
     cv2.circle(test_image, (50, 50), 40, (255, 0, 0), -1)  # 在中心画一个蓝色的圆
 
     # 使用CustomRandomCrop变换
-    transform = alb.Compose([
-        CustomRandomCrop(crop_size=(10, 10))
-    ])
+    transform = alb.Compose([CustomRandomCrop(crop_size=(10, 10))])
 
     # 应用变换
     transformed_image = transform(image=test_image)["image"]
@@ -53,10 +57,10 @@ def test_custom_random_crop():
 
 
 _train_alb_transform.transforms = _train_alb_transform.transforms[:-1]
-train_transform = transform_wrap(_train_alb_transform)
+train_transform = TransformWrapper(_train_alb_transform)
 
 
-def transform_alot(image_fp, out_fp):
+def transform_alot(transform, image_fp, out_fp):
     # image_fp = "examples/colorful.jpg"
     pillow_image = Image.open(image_fp).convert("RGB")
     image = read_img(image_fp).transpose((2, 0, 1))  # res: [1, H, W]
@@ -69,7 +73,7 @@ def transform_alot(image_fp, out_fp):
 
     all_images = [pillow_image]
     for i in range(rows * cols - 1):
-        transformed_image = train_transform(image=image)  # -> [C, H, W]
+        transformed_image = transform(image)  # -> [C, H, W]
         transformed_image = transformed_image.numpy()
         max_h = max(max_h, transformed_image.shape[1])
         max_w = max(max_w, transformed_image.shape[2])
@@ -91,20 +95,79 @@ def transform_alot(image_fp, out_fp):
     result_image.save(out_fp)
 
 
+image_dir = '../text_renderer/output/number-pure'
+image_fps = [
+    '00000000.jpg',
+    '00000001.jpg',
+    '00000007.jpg',
+    '00000008.jpg',
+    '00000009.jpg',
+    '00000015.jpg',
+    '00000017.jpg',
+    '00000020.jpg',
+    '00000024.jpg',
+    '00000027.jpg',
+    '00000028.jpg',
+    '00000193.jpg',
+    '00000198.jpg',
+]
+image_fps = [os.path.join(image_dir, fp) for fp in image_fps]
+
+
 def test_train_transform():
-    image_fps = [
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000001.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000007.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000009.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000015.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000017.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000025.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000028.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000193.jpg',
-        '/Users/king/Documents/WhatIHaveDone/Test/text_renderer/output/number-pure/00000198.jpg',
-    ]
     os.makedirs("test-out", exist_ok=True)
     for image_fp in image_fps:
         out_fp = os.path.basename(image_fp)
         out_fp = os.path.join("test-out", out_fp)
-        transform_alot(image_fp, out_fp)
+        transform_alot(train_transform, image_fp, out_fp)
+
+
+def test_nougat_transform():
+    transforms = {
+        # 'bitmap': Bitmap(always_apply=True),
+        'ero-dil': alb.OneOf([Erosion((2, 3)), Dilation((2, 3))], p=1.0),
+        'affine': alb.Affine(
+            shear={"x": (-3, 3), "y": (-3, 3)}, cval=(255, 255, 255), always_apply=True
+        ),
+        'shift-rot': alb.ShiftScaleRotate(
+            shift_limit_x=(0, 0.04),
+            shift_limit_y=(0, 0.03),
+            scale_limit=(-0.15, 0.03),
+            rotate_limit=2,
+            border_mode=0,
+            interpolation=2,
+            value=(255, 255, 255),
+            always_apply=True,
+        ),
+        'grid-dist': alb.GridDistortion(
+            distort_limit=0.05,
+            border_mode=0,
+            interpolation=2,
+            value=(255, 255, 255),
+            always_apply=True,
+        ),
+        'elast': alb.Compose(
+            [
+                alb.Affine(
+                    translate_px=(0, 2), always_apply=True, cval=(255, 255, 255)
+                ),
+                alb.ElasticTransform(
+                    p=1,
+                    alpha=50,
+                    sigma=120 * 0.1,
+                    alpha_affine=0.1,  # 120 * 0.01,
+                    border_mode=0,
+                    value=(255, 255, 255),
+                ),
+            ],
+            p=1.0,
+        ),
+    }
+
+    os.makedirs("test-out", exist_ok=True)
+    for name, transform in transforms.items():
+        os.makedirs(f"test-out/{name}", exist_ok=True)
+        for image_fp in image_fps:
+            out_fp = os.path.basename(image_fp)
+            out_fp = os.path.join(f"test-out/{name}", out_fp)
+            transform_alot(TransformWrapper(transform), image_fp, out_fp)
