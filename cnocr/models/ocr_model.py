@@ -93,7 +93,7 @@ class DecoderManager(object):
                 input_size=input_size,
                 hidden_size=config['rnn_units'],
                 batch_first=True,
-                num_layers=2,
+                num_layers=config.get('num_layers', 2),
                 bidirectional=True,
             )
             out_length = config['rnn_units'] * 2

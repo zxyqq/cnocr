@@ -121,13 +121,13 @@ ENCODER_CONFIGS = {
 }
 
 DECODER_CONFIGS = {
-    'lstm': {'rnn_units': 128,},
-    'gru': {'rnn_units': 128,},
-    'gru_base': {'rnn_units': 256,},
-    'gru_large': {'rnn_units': 512,},
-    'fc': {'hidden_size': 128, 'dropout': 0.1,},
-    'fc_base': {'hidden_size': 256, 'dropout': 0.3,},
-    'fc_large': {'hidden_size': 512, 'dropout': 0.4,},
+    'lstm': {'rnn_units': 128},
+    'gru': {'rnn_units': 128, 'num_layers': 2},
+    'gru_base': {'rnn_units': 256, 'num_layers': 2},
+    'gru_large': {'rnn_units': 512, 'num_layers': 3},
+    'fc': {'hidden_size': 128, 'dropout': 0.1},
+    'fc_base': {'hidden_size': 256, 'dropout': 0.3},
+    'fc_large': {'hidden_size': 512, 'dropout': 0.4},
 }
 
 
@@ -217,11 +217,6 @@ class AvailableModels(object):
                 'url': 'densenet_lite_136-gru-onnx.zip',
                 'vocab_fp': CN_VOCAB_FP,
             },
-            ('number-densenet_lite_136-fc', 'pytorch'): {
-                'epoch': 23,
-                'url': 'number-densenet_lite_136-fc.zip',
-                'vocab_fp': NUMBER_VOCAB_FP,
-            },
             ('number-densenet_lite_136-fc', 'onnx'): {
                 'epoch': 23,
                 'url': 'number-densenet_lite_136-fc-onnx.zip',
@@ -232,6 +227,11 @@ class AvailableModels(object):
 
     PAID_MODELS = OrderedDict(
         {
+            ('number-densenet_lite_136-fc', 'pytorch'): {
+                'epoch': 23,
+                'url': 'number-densenet_lite_136-fc.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
             ('number-densenet_lite_136-gru', 'pytorch'): {
                 'epoch': 29,
                 'url': 'number-densenet_lite_136-gru.zip',
