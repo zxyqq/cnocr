@@ -574,8 +574,6 @@ def export_onnx_model(
     rec_model_name, rec_vocab_fp, input_model_fp, output_model_fp,
 ):
     """把训练好的识别模型导出为 ONNX 格式。
-    当前无法导出 `*-gru` 模型， 具体说明见：https://discuss.pytorch.org/t/exporting-gru-rnn-to-onnx/27244 ，
-    后续版本会修复此问题。
     """
     export_to_onnx(rec_model_name, rec_vocab_fp, output_model_fp, input_model_fp)
 

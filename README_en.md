@@ -36,6 +36,17 @@
 ---
 </div>
 
+### [Update 2023.09.27]: Released V2.2.4
+
+Main Changes:
+* Added a series of pure numeric recognition models `number-*` (see [Pre-trained Recognition Models](#pre-trained-recognition-models)), suitable for pure numeric recognition scenarios such as bank card recognition, ID card recognition, coin year recognition, etc.
+* Adapted with the new versions of various packages, such as `pytorch_lightning`, `onnxruntime`, `pillow`, etc.
+* Optimized the data augmentation methods used in the training process and adopted the data augmentation methods from **Nougat**.
+* Added support for larger models, such as `densenet-lite-666`, `gru_large`, etc.
+* The previous `*-gru` series models are now also available in ONNX version.
+* Fixed a bunch of bugs, such as `val-complete_match-epoch` always being `0` during the training process.
+
+
 [**CnOCR**](https://github.com/breezedeus/cnocr)  is an **Optical Character Recognition (OCR)** toolkit for **Python 3**. It supports recognition of common characters in **English and numbers**, **Simplified Chinese**, **Traditional Chinese** (some models), and **vertical text** recognition. It comes with [**20+ well-trained models**](https://cnocr.readthedocs.io/zh/latest/models/) for different application scenarios and can be used directly after installation. Also, CnOCR provides simple training [commands](https://cnocr.readthedocs.io/zh/latest/train/) for users to train their own models. Welcome to join the WeChat contact group.
 
 <div align="center">
@@ -54,9 +65,6 @@ Starting from **V2.2**, **CnOCR** internally uses the text detection engine **[C
 
 Here are some examples of usages for different scenarios.
 
-## Start On Cloud IDE
-
-[https://idegithub.com/breezedeus/CnOCR](https://idegithub.com/breezedeus/CnOCR)
 
 ## Usages for Different Scenarios
 
@@ -221,13 +229,19 @@ print(out)
 Well, one line of command is enough if it goes well.
 
 ```bash
-pip install cnocr
+$ pip install cnocr[ort-cpu]
+```
+
+If you are using a **GPU** environment with an ONNX model, please install using the following command:
+
+```bash
+$ pip install cnocr[ort-gpu]
 ```
 
 If the installation is slow, you can specify a domestic installation source, such as using the Douban source: 
 
 ```bash
-pip install cnocr -i https://pypi.doubanio.com/simple
+$ pip install cnocr -i https://mirrors.aliyun.com/pypi/simple
 ```
 
 > **Note** 
@@ -247,6 +261,9 @@ More instructions can be found in the [installation documentation](https://cnocr
 
 | `det_model_name`                                             | PyTorch Version | ONNX Version | Model original source | Model File Size | Supported Language                       | Whether to support vertical text detection |
 | ------------------------------------------------------------ | ------------ | --------- | ------------ | ------------ | ------------------------------ | -------------------- |
+| **number-densenet_lite_136-fc** 🆕                            | √            | √         | cnocr        | 2.7 M        | **Pure Numeric** (contains only the ten digits `0~9`) | X                    |
+| **number-densenet_lite_136-gru**  🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only) | √            | √         | cnocr        | 5.5 M       | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
+| **number-densenet_lite_666-gru_large** 🆕 <br />（Coming Soon） | √            | √         | cnocr        | 56 M      | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
 | **en_PP-OCRv3_det**                                          | X            | √         | ppocr        | 2.3 M        | **English**、Numbers  | √                    |
 | db_shufflenet_v2                                             | √            | X         | cnocr        | 18 M         | Simplified Chinese, Traditional Chinese, English, Numbers | √                    |
 | **db_shufflenet_v2_small**                                   | √            | X         | cnocr        | 12 M         | Simplified Chinese, Traditional Chinese, English, Numbers | √                    |

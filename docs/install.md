@@ -5,13 +5,20 @@
 嗯，顺利的话一行命令即可。
 
 ```bash
-pip install cnocr
+$ pip install cnocr[ort-cpu]
 ```
+
+如果是 **GPU** 环境使用 ONNX 模型，请使用以下命令进行安装：
+
+```bash
+$ pip install cnocr[ort-gpu]
+```
+
 
 安装速度慢的话，可以指定国内的安装源，如使用豆瓣源：
 
 ```bash
-pip install cnocr -i https://pypi.doubanio.com/simple
+$ pip install cnocr[ort-cpu] -i https://mirrors.aliyun.com/pypi/simple
 ```
 
 > **Note**
