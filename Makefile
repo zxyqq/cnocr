@@ -12,6 +12,10 @@ TRAIN_CONFIG_FP = docs/examples/train_config.json
 train:
 	cnocr train -m $(MODEL_NAME) --index-dir $(INDEX_DIR) --train-config-fp $(TRAIN_CONFIG_FP)
 
+# 训练模型
+train-number-pure:
+	cnocr train -m number-$(MODEL_NAME) --index-dir data/number-pure-index --train-config-fp docs/examples/train_config_number.json
+
 # 在测试集上评估模型，所有badcases的具体信息会存放到文件夹 `evaluate/$(MODEL_NAME)` 中
 evaluate:
 	cnocr evaluate --model-name $(MODEL_NAME) -i data/test/dev.tsv \
@@ -34,7 +38,7 @@ package:
 	rm -rf build
 	python setup.py sdist bdist_wheel
 
-VERSION = 2.2.3.2
+VERSION = 2.2.4
 upload:
 	python -m twine upload  dist/cnocr-$(VERSION)* --verbose
 

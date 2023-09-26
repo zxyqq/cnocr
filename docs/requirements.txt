@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements37.txt requirements.in
 #
---index-url https://pypi.doubanio.com/simple
+--index-url https://mirrors.aliyun.com/pypi/simple
 --extra-index-url https://pypi.org/simple
 
 absl-py==1.2.0

@@ -16,6 +16,7 @@ Options:
   -m, --rec-model-name TEXT       识别模型名称。默认值为 densenet_lite_136-fc
   -b, --rec-model-backend [pytorch|onnx]
                                   识别模型类型。默认值为 `onnx`
+  -v, --rec-vocab-fp TEXT         识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表
   -d, --det-model-name TEXT       检测模型名称。默认值为 ch_PP-OCRv3_det
   --det-model-backend [pytorch|onnx]
                                   检测模型类型。默认值为 `onnx`
@@ -33,7 +34,7 @@ Options:
 例如可以使用以下命令对图片 `docs/examples/rand_cn1.png` 进行文字识别：
 
 ```bash
-> cnstd predict -i docs/examples/rand_cn1.png -s
+> cnocr predict -i docs/examples/rand_cn1.png -s
 ```
 
 具体使用也可参考文件 [Makefile](https://github.com/breezedeus/cnocr/blob/master/Makefile) 。
@@ -52,15 +53,16 @@ Options:
   -m, --rec-model-name TEXT       识别模型名称。默认值为 densenet_lite_136-fc
   -b, --rec-model-backend [pytorch|onnx]
                                   识别模型类型。默认值为 `onnx`
+  -v, --rec-vocab-fp TEXT         识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表
   -p, --pretrained-model-fp TEXT  识别模型使用训练好的模型。默认为 `None`，表示使用系统自带的预训练模型
   -c, --context TEXT              使用cpu还是 `gpu` 运行代码，也可指定为特定gpu，如`cuda:0`。默认为
                                   `cpu`
   -i, --eval-index-fp TEXT        待评估文件所在的索引文件，格式与训练时训练集索引文件相同，每行格式为 `<图片路径>
                                   <以空格分割的labels>`
-  --img-folder TEXT               图片所在文件夹，相对于索引文件中记录的图片位置  [required]
+  --image-folder TEXT             图片所在文件夹，相对于索引文件中记录的图片位置  [required]
   --batch-size INTEGER            batch size. 默认值：128
   -o, --output-dir TEXT           存放评估结果的文件夹。默认值：`eval_results`
-  -v, --verbose                   whether to print details to screen
+  --verbose                       whether to print details to screen
   -h, --help                      Show this message and exit.
 ```
 
@@ -166,18 +168,17 @@ Options:
 
 ## PyTorch 模型导出为 ONNX 模型
 
-把训练好的模型导出为 ONNX 格式。 当前无法导出 `*-gru` 模型， 具体说明见：[Exporting GRU RNN to ONNX - PyTorch Forums](https://discuss.pytorch.org/t/exporting-gru-rnn-to-onnx/27244) 。后续版本会修复此问题。
+把训练好的模型导出为 ONNX 格式。
 
 ```bash
 > cnocr export-onnx -h
 Usage: cnocr export-onnx [OPTIONS]
 
-  把训练好的识别模型导出为 ONNX 格式。 当前无法导出 `*-gru` 模型，
-  具体说明见：https://discuss.pytorch.org/t/exporting-gru-rnn-to-onnx/27244 ，
-  后续版本会修复此问题。
+  把训练好的识别模型导出为 ONNX 格式。
 
 Options:
   -m, --rec-model-name TEXT   识别模型名称。默认值为 `densenet_lite_136-fc`
+  -v, --rec-vocab-fp TEXT     识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表
   -i, --input-model-fp TEXT   输入的识别模型文件路径。 默认为 `None`，表示使用系统自带的预训练模型
   -o, --output-model-fp TEXT  输出的识别模型文件路径（.onnx）  [required]
   -h, --help                  Show this message and exit.

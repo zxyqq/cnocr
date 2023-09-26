@@ -17,6 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 # Credits: adapted from https://github.com/mindee/doctr
+import logging
 from collections import OrderedDict
 from typing import Tuple, Dict, Any, Optional, List, Union
 from copy import deepcopy
@@ -32,6 +33,8 @@ from ..consts import ENCODER_CONFIGS, DECODER_CONFIGS
 from ..data_utils.utils import encode_sequences
 from .densenet import DenseNet, DenseNetLite
 from .mobilenet import gen_mobilenet_v3
+
+logger = logging.getLogger(__name__)
 
 
 class EncoderManager(object):
@@ -76,7 +79,7 @@ class DecoderManager(object):
             assert config is not None and 'name' in config
             name = config.pop('name')
 
-        if name.lower() == 'lstm':
+        if 'lstm' in name.lower():
             decoder = nn.LSTM(
                 input_size=input_size,
                 hidden_size=config['rnn_units'],
@@ -85,16 +88,16 @@ class DecoderManager(object):
                 bidirectional=True,
             )
             out_length = config['rnn_units'] * 2
-        elif name.lower() == 'gru':
+        elif 'gru' in name.lower():
             decoder = nn.GRU(
                 input_size=input_size,
                 hidden_size=config['rnn_units'],
                 batch_first=True,
-                num_layers=2,
+                num_layers=config.get('num_layers', 2),
                 bidirectional=True,
             )
             out_length = config['rnn_units'] * 2
-        elif name.lower() in ('fc', 'fcfull'):
+        elif 'fc' in name.lower():
             decoder = nn.Sequential(
                 nn.Dropout(p=config['dropout']),
                 # nn.Tanh(),
@@ -104,7 +107,7 @@ class DecoderManager(object):
             )
             out_length = config['hidden_size']
         else:
-            raise ValueError('not supported encoder name: %s' % name)
+            raise ValueError('not supported decoder name: %s' % name)
         return decoder, out_length
 
 
@@ -156,7 +159,7 @@ class OcrModel(nn.Module):
 
     @classmethod
     def from_name(cls, name: str, vocab: List[str]):
-        encoder_name, decoder_name = name.rsplit('-', maxsplit=1)
+        encoder_name, decoder_name = name.split('-')[-2:]
         encoder, encoder_out_len = EncoderManager.gen_encoder(encoder_name)
         decoder, decoder_out_len = DecoderManager.gen_decoder(
             encoder_out_len, decoder_name
@@ -167,6 +170,7 @@ class OcrModel(nn.Module):
         self, batch, return_model_output: bool = False, return_preds: bool = False,
     ):
         imgs, img_lengths, labels_list, label_lengths = batch
+        # print(f'cal loss before: {labels_list=}, {img_lengths=}, {labels_list=}, {label_lengths=}')
         return self(
             imgs, img_lengths, labels_list, None, return_model_output, return_preds
         )
@@ -190,21 +194,27 @@ class OcrModel(nn.Module):
         :param return_preds: 是否返回预测的字符串
         :return: 预测结果
         """
+        # print(f'forward before: {x.shape=}, {x.min()=}, {x.max()=}')
         features = self.encoder(x)
+        # print(f'forward encoder: {features.shape=}, {features.min()=}, {features.max()=}, {input_lengths=}')
         input_lengths = torch.div(
             input_lengths, self.encoder.compress_ratio, rounding_mode='floor'
         )
+        # print(f'forward div: {input_lengths=}')
+        if input_lengths.min() < 1:
+            logger.error(f'input_lengths min: {input_lengths.min()}, {input_lengths=}')
         # B x C x H x W --> B x C*H x W --> B x W x C*H
         c, h, w = features.shape[1], features.shape[2], features.shape[3]
         features_seq = torch.reshape(features, shape=(-1, h * c, w))
         features_seq = torch.transpose(features_seq, 1, 2)  # B x W x C*H
+        # print(f'forward reshape: {features_seq.shape=}, {features_seq.min()=}, {features_seq.max()=}')
 
         logits = self._decode(features_seq, input_lengths)
+        # print(f'forward decode: {logits.shape=}, {logits.min()=}, {logits.max()=}')
 
         logits = self.linear(logits)
-        logits = self.mask_by_candidates(
-            logits, candidates, self.vocab, self.letter2id
-        )
+        logits = self.mask_by_candidates(logits, candidates, self.vocab, self.letter2id)
+        # print(f'forward linear: {logits.shape=}, {logits.min()=}, {logits.max()=}')
 
         out: OrderedDict[str, Any] = {}
         if return_logits:
@@ -215,9 +225,11 @@ class OcrModel(nn.Module):
             # Post-process boxes
             if self.postprocessor is not None:
                 out["preds"] = self.postprocessor(logits, input_lengths)
+                # print(f'forward postprocessor: {out["preds"]=}')
 
         if target is not None:
             out['loss'] = self._compute_loss(logits, target, input_lengths)
+            # print(f'forward loss: {out["loss"]=}')
 
         out['target'] = target
         return dict(out)

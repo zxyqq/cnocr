@@ -27,6 +27,7 @@ import torch.optim as optim
 from torch import nn
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
+from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 import torchmetrics
 
@@ -86,7 +87,7 @@ METRIC_MAPPING = {
     'precision': torchmetrics.Precision,
     'recall': torchmetrics.Recall,
     'complete_match': CompleteMatchMetric,
-    'cer': torchmetrics.CharErrorRate,
+    'cer': torchmetrics.text.CharErrorRate,
 }
 try:
     METRIC_MAPPING['f1'] = torchmetrics.F1Score
@@ -141,6 +142,9 @@ class WrapperLightningModule(pl.LightningModule):
         self.train_metrics = self.get_metrics()
         self.val_metrics = self.get_metrics()
 
+        self.training_step_outputs = []
+        self.val_step_outputs = []
+
     def forward(self, x):
         return self.model(x)
 
@@ -164,9 +168,11 @@ class WrapperLightningModule(pl.LightningModule):
             return [''.join(_one) for _one in target]
 
     def training_step(self, batch, batch_idx):
+        # print(f'train step, cal_loss before: ')
         res = self.model.calculate_loss(
             batch, return_model_output=True, return_preds=True
         )
+        # print(f'train step, cal_loss after: ')
 
         # update lr scheduler
         sch = self.lr_schedulers()
@@ -175,6 +181,7 @@ class WrapperLightningModule(pl.LightningModule):
         losses = res['loss']
         preds = self._postprocess_preds(res['preds'])
         reals = self._postprocess_target(res['target'])
+        # print(f'train step, postproc after: {reals=}, {preds=}')
         train_metrics = self.train_metrics.add_batch(
             references=reals, predictions=preds
         )
@@ -185,20 +192,23 @@ class WrapperLightningModule(pl.LightningModule):
         self.log_dict(
             train_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
+        self.training_step_outputs.append(losses.item())
+        # print(f'train step, out')
         return losses
 
-    def training_epoch_end(self, outputs) -> None:
+    def on_train_epoch_end(self) -> None:
         train_metrics = self.train_metrics.compute()
         train_metrics = {
             f'train-{k}-epoch': v for k, v in train_metrics.items() if not np.isnan(v)
         }
         train_metrics['train-loss-epoch'] = np.mean(
-            [out['loss'].item() for out in outputs]
+            [out for out in self.training_step_outputs]
         )
         self.log_dict(
             train_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True,
         )
         self.train_metrics = self.get_metrics()
+        self.training_step_outputs.clear()
 
     def validation_step(self, batch, batch_idx):
         # if hasattr(self.model, 'validation_step'):
@@ -210,9 +220,7 @@ class WrapperLightningModule(pl.LightningModule):
         losses = res['loss']
 
         preds = self._postprocess_preds(res['preds'])
-        reals = res['target']
-        if isinstance(reals, torch.Tensor):
-            reals = reals.detach().cpu()
+        reals = self._postprocess_target(res['target'])
         val_metrics = self.val_metrics.add_batch(references=reals, predictions=preds)
         val_metrics['loss'] = losses.item()
         # val_metrics['accuracy'] = sum([p == r for p, r in zip(preds, reals)]) / (len(reals) + 1e-6)
@@ -224,18 +232,20 @@ class WrapperLightningModule(pl.LightningModule):
         self.log_dict(
             val_metrics, on_step=True, on_epoch=False, prog_bar=True, logger=True,
         )
+        self.val_step_outputs.append(losses.item())
         return losses
 
-    def validation_epoch_end(self, outputs) -> None:
+    def on_validation_epoch_end(self) -> None:
         val_metrics = self.val_metrics.compute()
         val_metrics = {
             f'val-{k}-epoch': v for k, v in val_metrics.items() if not np.isnan(v)
         }
-        val_metrics['val-loss-epoch'] = np.mean([out.item() for out in outputs])
+        val_metrics['val-loss-epoch'] = np.mean([out for out in self.val_step_outputs])
         self.log_dict(
             val_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True,
         )
         self.val_metrics = self.get_metrics()
+        self.val_step_outputs.clear()
 
     def configure_optimizers(self):
         return [self._optimizer], [get_lr_scheduler(self.config, self._optimizer)]
@@ -249,6 +259,7 @@ class PlTrainer(object):
     def __init__(self, config, ckpt_fn=None):
         self.config = config
 
+        wandb_logger = WandbLogger(project='CnOCR-Rec', save_dir='runs', log_model=True)
         lr_monitor = LearningRateMonitor(logging_interval='step')
         callbacks = [lr_monitor]
 
@@ -268,8 +279,10 @@ class PlTrainer(object):
             callbacks.append(checkpoint_callback)
 
         self.pl_trainer = pl.Trainer(
+            gradient_clip_val=1.0,
             limit_train_batches=self.config.get('limit_train_batches', 1.0),
             limit_val_batches=self.config.get('limit_val_batches', 1.0),
+            logger=wandb_logger,
             accelerator=self.config.get('accelerator', 'auto'),
             devices=self.config.get('devices'),
             max_epochs=self.config.get('epochs', 20),
@@ -317,11 +330,16 @@ class PlTrainer(object):
             pl_module = WrapperLightningModule.load_from_checkpoint(
                 resume_from_checkpoint, config=self.config, model=model
             )
-            self.pl_trainer = pl.Trainer(resume_from_checkpoint=resume_from_checkpoint)
         else:
             pl_module = WrapperLightningModule(self.config, model)
 
-        self.pl_trainer.fit(pl_module, train_dataloader, val_dataloaders, datamodule)
+        self.pl_trainer.fit(
+            pl_module,
+            train_dataloader,
+            val_dataloaders,
+            datamodule,
+            ckpt_path=resume_from_checkpoint,
+        )
 
         fields = self.pl_trainer.checkpoint_callback.best_model_path.rsplit(
             '.', maxsplit=1

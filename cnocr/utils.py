@@ -29,6 +29,7 @@ from typing import Union, Any, Tuple, List, Optional, Dict
 
 from tqdm import tqdm
 from PIL import Image
+import cv2
 import numpy as np
 import torch
 from torch import Tensor
@@ -103,7 +104,7 @@ def data_dir():
 
 
 def check_model_name(model_name):
-    encoder_type, decoder_type = model_name.split('-')[:2]
+    encoder_type, decoder_type = model_name.split('-')[-2:]
     assert encoder_type in ENCODER_CONFIGS
     assert decoder_type in DECODER_CONFIGS
 
@@ -141,7 +142,7 @@ def check_sha1(filename, sha1_hash):
 
 
 def download(url, path=None, overwrite=False, sha1_hash=None):
-    """Download an given URL
+    """Download a given URL
     Parameters
     ----------
     url : str
@@ -253,11 +254,16 @@ def read_img(path: Union[str, Path], gray=True) -> np.ndarray:
         * when `gray==True`, return a gray image, with dim [height, width, 1], with values range from 0 to 255
         * when `gray==False`, return a color image, with dim [height, width, 3], with values range from 0 to 255
     """
-    img = Image.open(path)
     if gray:
-        return np.expand_dims(np.array(img.convert('L')), -1)
+        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        if img is None:
+            raise FileNotFoundError(f'Error loading image: {path}')
+        return np.expand_dims(img, -1)
     else:
-        return np.asarray(img.convert('RGB'))
+        img = cv2.imread(path)
+        if img is None:
+            raise FileNotFoundError(f'Error loading image: {path}')
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
 def save_img(img: Union[Tensor, np.ndarray], path):
@@ -274,25 +280,30 @@ def save_img(img: Union[Tensor, np.ndarray], path):
 def resize_img(
     img: np.ndarray,
     target_h_w: Optional[Tuple[int, int]] = None,
+    min_width: int = 8,
     return_torch: bool = True,
 ) -> Union[torch.Tensor, np.ndarray]:
     """
     rescale an image tensor with [Channel, Height, Width] to the given height value, and keep the ratio
     :param img: np.ndarray; should be [c, height, width]
     :param target_h_w: (height, width) of the target image or None
+    :param min_width: int; minimum width after resized. Only used when `target_h_w` is None. Default 8
     :param return_torch: bool; whether to return a `torch.Tensor` or `np.ndarray`
     :return: image tensor with the given height. The resulting dim is [C, height, width]
     """
     ori_height, ori_width = img.shape[1:]
     if target_h_w is None:
         ratio = ori_height / IMG_STANDARD_HEIGHT
-        target_h_w = (IMG_STANDARD_HEIGHT, int(ori_width / ratio))
+        target_w = max(int(ori_width / ratio), min_width)
+        target_h_w = (IMG_STANDARD_HEIGHT, target_w)
 
     if (ori_height, ori_width) != target_h_w:
-        img = F.resize(torch.from_numpy(img), target_h_w)
-        if not return_torch:
-            img = img.numpy()
-    elif return_torch:
+        # img = F.resize(torch.from_numpy(img), target_h_w, antialias=True)
+        new_img = cv2.resize(img.transpose((1, 2, 0)), (target_h_w[1], target_h_w[0]))  # -> (H, W, C)
+        if img.ndim > new_img.ndim:
+            new_img = np.expand_dims(new_img, axis=-1)
+        img = new_img.transpose((2, 0, 1))  # -> (C, H, W)
+    if return_torch:
         img = torch.from_numpy(img)
     return img
 

@@ -30,6 +30,7 @@ from multiprocessing import Process
 import subprocess
 
 import click
+import torchmetrics
 from torchvision import transforms as T
 import torch
 
@@ -42,12 +43,9 @@ from cnocr.utils import (
     read_img,
     draw_ocr_results,
 )
-from cnocr.data_utils.aug import (
-    NormalizeAug,
-    RandomStretchAug,
-)
+from cnocr.data_utils.aug import NormalizeAug
 from cnocr.dataset import OcrDataModule
-from cnocr.trainer import PlTrainer, resave_model
+from cnocr.trainer import PlTrainer, resave_model, Metrics
 from cnocr import CnOcr, gen_model
 from cnocr.recognizer import Recognizer
 
@@ -111,23 +109,25 @@ def train(
     pretrained_model_fp,
 ):
     """训练识别模型"""
+    from cnocr.data_utils.transforms import train_transform, test_transform
     check_model_name(rec_model_name)
-    train_transform = T.Compose(
-        [
-            RandomStretchAug(min_ratio=0.5, max_ratio=1.5),
-            # RandomCrop((8, 10)),
-            T.RandomInvert(p=0.2),
-            T.RandomApply([T.RandomRotation(degrees=1)], p=0.4),
-            # T.RandomAutocontrast(p=0.05),
-            # T.RandomPosterize(bits=4, p=0.3),
-            # T.RandomAdjustSharpness(sharpness_factor=0.5, p=0.3),
-            # T.RandomEqualize(p=0.3),
-            # T.RandomApply([T.GaussianBlur(kernel_size=3)], p=0.5),
-            NormalizeAug(),
-            # RandomPaddingAug(p=0.5, max_pad_len=72),
-        ]
-    )
-    val_transform = NormalizeAug()
+    # train_transform = T.Compose(
+    #     [
+    #         RandomStretchAug(min_ratio=0.5, max_ratio=1.5),
+    #         # RandomCrop((8, 10)),
+    #         T.RandomInvert(p=0.2),
+    #         T.RandomApply([T.RandomRotation(degrees=1)], p=0.4),
+    #         # T.RandomAutocontrast(p=0.05),
+    #         # T.RandomPosterize(bits=4, p=0.3),
+    #         # T.RandomAdjustSharpness(sharpness_factor=0.5, p=0.3),
+    #         # T.RandomEqualize(p=0.3),
+    #         # T.RandomApply([T.GaussianBlur(kernel_size=3)], p=0.5),
+    #         NormalizeAug(),
+    #         # RandomPaddingAug(p=0.5, max_pad_len=72),
+    #     ]
+    # )
+    # val_transform = NormalizeAug()
+    val_transform = test_transform
 
     train_config = json.load(open(train_config_fp))
 
@@ -138,9 +138,11 @@ def train(
         train_transforms=train_transform,
         val_transforms=val_transform,
         batch_size=train_config['batch_size'],
+        train_bucket_size=train_config.get('train_bucket_size'),
         num_workers=train_config['num_workers'],
         pin_memory=train_config['pin_memory'],
     )
+    data_mod.setup('')
 
     # train_ds = data_mod.train
     # for i in range(min(100, len(train_ds))):
@@ -191,6 +193,13 @@ def visualize_example(example, fp_prefix):
     help='识别模型类型。默认值为 `onnx`',
 )
 @click.option(
+    '-v',
+    '--rec-vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
     '-d',
     '--det-model-name',
     type=str,
@@ -233,6 +242,7 @@ def visualize_example(example, fp_prefix):
 def predict(
     rec_model_name,
     rec_model_backend,
+    rec_vocab_fp,
     det_model_name,
     det_model_backend,
     pretrained_model_fp,
@@ -243,9 +253,23 @@ def predict(
     draw_font_path,
 ):
     """模型预测"""
+    fp_list = []
+    if os.path.isfile(img_file_or_dir):
+        fp_list.append(img_file_or_dir)
+    elif os.path.isdir(img_file_or_dir):
+        fn_list = glob.glob1(img_file_or_dir, '*g')
+        fp_list = [os.path.join(img_file_or_dir, fn) for fn in fn_list]
+    else:
+        raise ValueError(
+            f'"{img_file_or_dir}" is not found, which must be a file or a directory'
+        )
+    if len(fp_list) == 0:
+        raise ValueError(f'No image is found from "{img_file_or_dir}".')
+
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
+        rec_vocab_fp=rec_vocab_fp,
         det_model_name=det_model_name,
         det_model_backend=det_model_backend,
         rec_model_fp=pretrained_model_fp,
@@ -253,12 +277,6 @@ def predict(
         # det_more_configs={'rotated_bbox': False},
     )
     ocr_func = ocr.ocr_for_single_line if single_line else ocr.ocr
-    fp_list = []
-    if os.path.isfile(img_file_or_dir):
-        fp_list.append(img_file_or_dir)
-    elif os.path.isdir(img_file_or_dir):
-        fn_list = glob.glob1(img_file_or_dir, '*g')
-        fp_list = [os.path.join(img_file_or_dir, fn) for fn in fn_list]
 
     for fp in fp_list:
         start_time = time.time()
@@ -311,6 +329,13 @@ def predict(
     help='识别模型类型。默认值为 `onnx`',
 )
 @click.option(
+    '-v',
+    '--rec-vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
     '-p',
     '--pretrained-model-fp',
     type=str,
@@ -331,7 +356,7 @@ def predict(
     help='待评估文件所在的索引文件，格式与训练时训练集索引文件相同，每行格式为 `<图片路径>\t<以空格分割的labels>`',
     default='test.txt',
 )
-@click.option("--img-folder", required=True, help="图片所在文件夹，相对于索引文件中记录的图片位置")
+@click.option("--image-folder", required=True, help="图片所在文件夹，相对于索引文件中记录的图片位置")
 @click.option("--batch-size", type=int, help="batch size. 默认值：128", default=128)
 @click.option(
     '-o',
@@ -341,31 +366,25 @@ def predict(
     help='存放评估结果的文件夹。默认值：`eval_results`',
 )
 @click.option(
-    "-v", "--verbose", is_flag=True, help="whether to print details to screen",
+    "--verbose", is_flag=True, help="whether to print details to screen",
 )
 def evaluate(
     rec_model_name,
     rec_model_backend,
+    rec_vocab_fp,
     pretrained_model_fp,
     context,
     eval_index_fp,
-    img_folder,
+    image_folder,
     batch_size,
     output_dir,
     verbose,
 ):
     """评估模型效果。检测模型使用 `det_model_name='naive_det'` 。"""
-    try:
-        import Levenshtein
-    except Exception as e:
-        logger.error(e)
-        logger.error(
-            'try to install the package by using `pip install python-Levenshtein`'
-        )
-        return
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
+        rec_vocab_fp=rec_vocab_fp,
         rec_model_fp=pretrained_model_fp,
         det_model_name='naive_det',
         context=context,
@@ -373,6 +392,12 @@ def evaluate(
 
     fn_labels_list = read_input_file(eval_index_fp)
 
+    metrics_config = {
+        "complete_match": {},
+        "cer": {}
+    }
+    metrics = Metrics.from_config(metrics_config)
+    cer = torchmetrics.text.CharErrorRate()
     miss_cnt, redundant_cnt = Counter(), Counter()
     total_time_cost = 0.0
     bad_cnt = 0
@@ -382,8 +407,8 @@ def evaluate(
     while start_idx < len(fn_labels_list):
         logger.info('start_idx: %d', start_idx)
         batch = fn_labels_list[start_idx : start_idx + batch_size]
-        img_fps = [os.path.join(img_folder, fn) for fn, _ in batch]
-        reals = [labels for _, labels in batch]
+        img_fps = [os.path.join(image_folder, fn) for fn, _ in batch]
+        reals = [''.join(labels) for _, labels in batch]
 
         imgs = [read_img(img) for img in img_fps]
         start_time = time.time()
@@ -391,11 +416,12 @@ def evaluate(
         total_time_cost += time.time() - start_time
 
         preds = [out['text'] for out in outs]
+        metrics.add_batch(reals, preds)
         for bad_info in compare_preds_to_reals(preds, reals, img_fps):
             if verbose:
                 logger.info('\t'.join(bad_info))
-            distance = Levenshtein.distance(bad_info[1], bad_info[2])
-            bad_info.insert(0, distance)
+            _cer = float(cer(preds=bad_info[2], target=bad_info[1]))
+            bad_info.insert(0, _cer)
             badcases.append(bad_info)
             miss_cnt.update(list(bad_info[-2]))
             redundant_cnt.update(list(bad_info[-1]))
@@ -403,6 +429,7 @@ def evaluate(
 
         start_idx += batch_size
 
+    results = metrics.compute()
     badcases.sort(key=itemgetter(0), reverse=True)
 
     output_dir = Path(output_dir)
@@ -431,6 +458,7 @@ def evaluate(
         for word, num in redundant_cnt.most_common():
             f.write('\t'.join([word, str(num)]) + '\n')
 
+    logger.info(f'metrics: {results}')
     logger.info(
         "number of total cases: %d, number of bad cases: %d, acc: %.4f, time cost per image: %f"
         % (
@@ -440,6 +468,7 @@ def evaluate(
             total_time_cost / len(fn_labels_list),
         )
     )
+    logger.info(f'more detailed infos can be found in the dir: {output_dir}')
 
 
 def read_input_file(in_fp):
@@ -480,10 +509,12 @@ def resave_model_file(
     resave_model(input_model_fp, output_model_fp, map_location='cpu')
 
 
-def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
+def export_to_onnx(model_name, vocab_fp, output_model_fp, input_model_fp=None):
     import onnx
 
-    ocr = Recognizer(model_name, model_fp=input_model_fp)
+    ocr = Recognizer(
+        model_name, model_backend='pytorch', model_fp=input_model_fp, vocab_fp=vocab_fp,
+    )
     model = ocr._model
 
     x = torch.randn(1, 1, 32, 280)
@@ -523,6 +554,13 @@ def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
     help='识别模型名称。默认值为 `%s`' % DEFAULT_MODEL_NAME,
 )
 @click.option(
+    '-v',
+    '--rec-vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
     '-i',
     '--input-model-fp',
     type=str,
@@ -533,13 +571,11 @@ def export_to_onnx(model_name, output_model_fp, input_model_fp=None):
     '-o', '--output-model-fp', type=str, required=True, help='输出的识别模型文件路径（.onnx）'
 )
 def export_onnx_model(
-    rec_model_name, input_model_fp, output_model_fp,
+    rec_model_name, rec_vocab_fp, input_model_fp, output_model_fp,
 ):
     """把训练好的识别模型导出为 ONNX 格式。
-    当前无法导出 `*-gru` 模型， 具体说明见：https://discuss.pytorch.org/t/exporting-gru-rnn-to-onnx/27244 ，
-    后续版本会修复此问题。
     """
-    export_to_onnx(rec_model_name, output_model_fp, input_model_fp)
+    export_to_onnx(rec_model_name, rec_vocab_fp, output_model_fp, input_model_fp)
 
 
 @cli.command('serve')

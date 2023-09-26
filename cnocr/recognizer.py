@@ -28,7 +28,7 @@ from PIL import Image
 import torch
 from cnstd.utils import get_model_file
 
-from .consts import MODEL_VERSION, AVAILABLE_MODELS, VOCAB_FP
+from .consts import MODEL_VERSION, AVAILABLE_MODELS
 from .models.ocr_model import OcrModel
 from .utils import (
     data_dir,
@@ -65,7 +65,7 @@ class Recognizer(object):
         model_fp: Optional[str] = None,
         model_backend: str = 'onnx',  # ['pytorch', 'onnx']
         root: Union[str, Path] = data_dir(),
-        vocab_fp: Union[str, Path] = VOCAB_FP,
+        vocab_fp: Optional[Union[str, Path]] = None,
         **kwargs,
     ):
         """
@@ -82,7 +82,7 @@ class Recognizer(object):
             root (Union[str, Path]): 模型文件所在的根目录。
                 Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.1/densenet_lite_136-fc`。
                 Windows下默认值为 `C:/Users/<username>/AppData/Roaming/cnocr`。
-            vocab_fp (Union[str, Path]): 字符集合的文件路径，即 `label_cn.txt` 文件路径。
+            vocab_fp (Optional[Union[str, Path]]): 字符集合的文件路径，即 `label_cn.txt` 文件路径。取值为 `None` 表示使用系统设定的词表。
                 若训练的自有模型更改了字符集，看通过此参数传入新的字符集文件路径。
             **kwargs: 目前未被使用。
 
@@ -129,6 +129,10 @@ class Recognizer(object):
             )
             self._assert_and_prepare_model_files(model_fp, root)
 
+        if vocab_fp is None:
+            vocab_fp = AVAILABLE_MODELS.get_vocab_fp(
+                self._model_name, self._model_backend
+            )
         self._vocab, self._letter2id = read_charset(vocab_fp)
         self.postprocessor = CTCPostProcessor(vocab=self._vocab)
 
@@ -138,7 +142,9 @@ class Recognizer(object):
         self._model = self._get_model(context)
 
     def _assert_and_prepare_model_files(self, model_fp, root):
-        self._model_file_prefix = '{}-{}'.format(self.MODEL_FILE_PREFIX, self._model_name)
+        self._model_file_prefix = '{}-{}'.format(
+            self.MODEL_FILE_PREFIX, self._model_name
+        )
         model_epoch = AVAILABLE_MODELS.get_epoch(self._model_name, self._model_backend)
 
         if model_epoch is not None:
@@ -186,9 +192,11 @@ class Recognizer(object):
             model.to(self.context)
             model = load_model_params(model, self._model_fp, context)
         elif self._model_backend == 'onnx':
-            import onnxruntime
+            import onnxruntime as ort
 
-            model = onnxruntime.InferenceSession(self._model_fp)
+            model = ort.InferenceSession(
+                self._model_fp, providers=ort.get_available_providers(),
+            )
         else:
             raise NotImplementedError(f'{self._model_backend} is not supported yet')
 
