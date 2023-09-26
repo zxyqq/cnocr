@@ -222,36 +222,36 @@ class AvailableModels(object):
                 'url': 'number-densenet_lite_136-fc-onnx.zip',
                 'vocab_fp': NUMBER_VOCAB_FP,
             },
-        }
-    )
-
-    PAID_MODELS = OrderedDict(
-        {
             ('number-densenet_lite_136-fc', 'pytorch'): {
                 'epoch': 23,
                 'url': 'number-densenet_lite_136-fc.zip',
                 'vocab_fp': NUMBER_VOCAB_FP,
             },
+        }
+    )
+
+    PAID_MODELS = OrderedDict(
+        {
             ('number-densenet_lite_136-gru', 'pytorch'): {
-                'epoch': 29,
+                'epoch': 28,
                 'url': 'number-densenet_lite_136-gru.zip',
                 'vocab_fp': NUMBER_VOCAB_FP,
             },
             ('number-densenet_lite_136-gru', 'onnx'): {
-                'epoch': 29,
+                'epoch': 28,
                 'url': 'number-densenet_lite_136-gru-onnx.zip',
                 'vocab_fp': NUMBER_VOCAB_FP,
             },
-            ('number-densenet_lite_666-gru_large', 'pytorch'): {
-                'epoch': 2,
-                'url': 'number-densenet_lite_666-gru_large.zip',
-                'vocab_fp': NUMBER_VOCAB_FP,
-            },
-            ('number-densenet_lite_666-gru_large', 'onnx'): {
-                'epoch': 2,
-                'url': 'number-densenet_lite_666-gru_large-onnx.zip',
-                'vocab_fp': NUMBER_VOCAB_FP,
-            },
+            # ('number-densenet_lite_666-gru_large', 'pytorch'): {
+            #     'epoch': 28,
+            #     'url': 'number-densenet_lite_666-gru_large.zip',
+            #     'vocab_fp': NUMBER_VOCAB_FP,
+            # },
+            # ('number-densenet_lite_666-gru_large', 'onnx'): {
+            #     'epoch': 28,
+            #     'url': 'number-densenet_lite_666-gru_large-onnx.zip',
+            #     'vocab_fp': NUMBER_VOCAB_FP,
+            # },
         }
     )
 

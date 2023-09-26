@@ -420,8 +420,8 @@ def evaluate(
         for bad_info in compare_preds_to_reals(preds, reals, img_fps):
             if verbose:
                 logger.info('\t'.join(bad_info))
-            distance = float(cer(preds=bad_info[2], target=bad_info[1]))
-            bad_info.insert(0, distance)
+            _cer = float(cer(preds=bad_info[2], target=bad_info[1]))
+            bad_info.insert(0, _cer)
             badcases.append(bad_info)
             miss_cnt.update(list(bad_info[-2]))
             redundant_cnt.update(list(bad_info[-1]))

@@ -44,16 +44,16 @@ required = [
     "numpy",
     "pytorch-lightning>=2.0.0",
     "wandb",
-    "albumentations",
     "torchmetrics",
     "pillow>=5.3.0",
     "onnx",
-    "onnxruntime",
-    "cnstd>=1.2.3.2",
+    "cnstd>=1.2.3.4",
 ]
 extras_require = {
-    "dev": ["pip-tools", "pytest"],
+    "ort-cpu": ["onnxruntime"],
+    "ort-gpu": ["onnxruntime-gpu"],
     "serve": ["uvicorn[standard]", "fastapi", "python-multipart", "pydantic"],
+    "dev": ["albumentations", "pip-tools", "pytest"],
 }
 
 entry_points = """
