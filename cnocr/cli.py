@@ -44,7 +44,6 @@ from cnocr.utils import (
     draw_ocr_results,
 )
 from cnocr.data_utils.aug import NormalizeAug
-from cnocr.data_utils.transforms import train_transform, test_transform
 from cnocr.dataset import OcrDataModule
 from cnocr.trainer import PlTrainer, resave_model, Metrics
 from cnocr import CnOcr, gen_model
@@ -110,6 +109,7 @@ def train(
     pretrained_model_fp,
 ):
     """训练识别模型"""
+    from cnocr.data_utils.transforms import train_transform, test_transform
     check_model_name(rec_model_name)
     # train_transform = T.Compose(
     #     [
@@ -397,7 +397,7 @@ def evaluate(
         "cer": {}
     }
     metrics = Metrics.from_config(metrics_config)
-    cer = torchmetrics.CharErrorRate()
+    cer = torchmetrics.text.CharErrorRate()
     miss_cnt, redundant_cnt = Counter(), Counter()
     total_time_cost = 0.0
     bad_cnt = 0

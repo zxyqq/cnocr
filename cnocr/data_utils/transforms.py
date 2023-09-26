@@ -23,9 +23,13 @@ import traceback
 import cv2
 import torch
 import numpy as np
-import albumentations as alb
-from albumentations.pytorch import ToTensorV2
-from albumentations.core.transforms_interface import ImageOnlyTransform
+
+try:
+    import albumentations as alb
+    from albumentations.pytorch import ToTensorV2
+    from albumentations.core.transforms_interface import ImageOnlyTransform
+except ImportError:
+    raise ImportError(f'Please install the dev version of cnocr by: `pip install cnocr[dev]`')
 
 from ..utils import normalize_img_array
 
