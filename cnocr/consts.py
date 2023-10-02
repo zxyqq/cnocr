@@ -242,16 +242,16 @@ class AvailableModels(object):
                 'url': 'number-densenet_lite_136-gru-onnx.zip',
                 'vocab_fp': NUMBER_VOCAB_FP,
             },
-            # ('number-densenet_lite_666-gru_large', 'pytorch'): {
-            #     'epoch': 28,
-            #     'url': 'number-densenet_lite_666-gru_large.zip',
-            #     'vocab_fp': NUMBER_VOCAB_FP,
-            # },
-            # ('number-densenet_lite_666-gru_large', 'onnx'): {
-            #     'epoch': 28,
-            #     'url': 'number-densenet_lite_666-gru_large-onnx.zip',
-            #     'vocab_fp': NUMBER_VOCAB_FP,
-            # },
+            ('number-densenet_lite_666-gru_large', 'pytorch'): {
+                'epoch': 28,
+                'url': 'number-densenet_lite_666-gru_large.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
+            ('number-densenet_lite_666-gru_large', 'onnx'): {
+                'epoch': 28,
+                'url': 'number-densenet_lite_666-gru_large-onnx.zip',
+                'vocab_fp': NUMBER_VOCAB_FP,
+            },
         }
     )
 
