@@ -87,11 +87,10 @@ METRIC_MAPPING = {
     'precision': torchmetrics.Precision,
     'recall': torchmetrics.Recall,
     'complete_match': CompleteMatchMetric,
-    'cer': torchmetrics.text.CharErrorRate,
 }
 try:
     METRIC_MAPPING['f1'] = torchmetrics.F1Score
-    METRIC_MAPPING['cer'] = torchmetrics.CharErrorRate
+    METRIC_MAPPING['cer'] = torchmetrics.text.CharErrorRate
 except:
     pass
 

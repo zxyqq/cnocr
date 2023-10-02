@@ -1,8 +1,15 @@
 # Release Notes
 
+### Update 2023.10.01：发布 V2.2.4.1
+
+主要变更：
+
+* 加入了纯数字识别系列模型 `number-*` 中的大模型 `number-densenet_lite_666-gru_large`，购买后可使用。具体说明见：[CnOCR 纯数字识别新模型 | Breezedeus.com](https://www.breezedeus.com/article/cnocr-number-model-20231001) 。
+
 ### Update 2023.09.27：发布 V2.2.4
 
 主要变更：
+
 * 加入了纯数字识别系列模型 `number-*`，可用于纯数字识别场景，如银行卡识别、身份证识别、硬币年份识别等；
 * 对各个包的新版做了接口适配，如 `pytorch_lightning`、`onnxruntime`、`pillow`等；
 * 优化了训练过程使用的数据增强方式，并借鉴了**Nougat** 中的数据增强方法；
@@ -13,6 +20,7 @@
 ### Update 2023.06.30：发布 V2.2.3
 
 主要变更：
+
 * 修复了模型文件自动下载的功能。HuggingFace似乎对下载文件的逻辑做了调整，导致之前版本的自动下载失败，当前版本已修复。但由于HuggingFace国内被墙，国内下载仍需 **梯子（VPN）**。
 * 更新了各个依赖包的版本号。
 
