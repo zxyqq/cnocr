@@ -36,7 +36,7 @@ CnOCR的目标是**使用简单**。
 嗯，顺利的话一行命令即可完成安装。
 
 ```bash
-pip install cnocr
+$ pip install cnocr[ort-cpu]
 ```
 
 更多说明可见 [安装文档](install.md)。
