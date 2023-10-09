@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2021, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -17,6 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import os
 import string
 from collections import OrderedDict
 from pathlib import Path
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 # 模型版本只对应到第二层，第三层的改动表示模型兼容。
 # 如: __version__ = '2.2.*'，对应的 MODEL_VERSION 都是 '2.2'
 MODEL_VERSION = '.'.join(__version__.split('.', maxsplit=2)[:2])
+DOWNLOAD_SOURCE = os.environ.get('CNOCR_DOWNLOAD_SOURCE', 'CN')
 
 IMG_STANDARD_HEIGHT = 32
 CN_VOCAB_FP = Path(__file__).parent.absolute() / 'label_cn.txt'
@@ -135,20 +137,25 @@ HF_HUB_REPO_ID = "breezedeus/cnstd-cnocr-models"
 HF_HUB_SUBFOLDER = "models/cnocr/%s" % MODEL_VERSION
 PAID_HF_HUB_REPO_ID = "breezedeus/paid-models"
 PAID_HF_HUB_SUBFOLDER = "cnocr/%s" % MODEL_VERSION
+CN_OSS_ENDPOINT = (
+    "https://sg-models.oss-cn-beijing.aliyuncs.com/cnocr/%s/" % MODEL_VERSION
+)
 
 
 def format_hf_hub_url(url: str, is_paid_model=False) -> dict:
+    out_dict = {'filename': url}
+
     if is_paid_model:
         repo_id = PAID_HF_HUB_REPO_ID
         subfolder = PAID_HF_HUB_SUBFOLDER
     else:
         repo_id = HF_HUB_REPO_ID
         subfolder = HF_HUB_SUBFOLDER
-    return {
-        'repo_id': repo_id,
-        'subfolder': subfolder,
-        'filename': url,
-    }
+        out_dict['cn_oss'] = CN_OSS_ENDPOINT
+    out_dict.update(
+        {'repo_id': repo_id, 'subfolder': subfolder,}
+    )
+    return out_dict
 
 
 class AvailableModels(object):

@@ -28,7 +28,7 @@ from PIL import Image
 import torch
 from cnstd.utils import get_model_file
 
-from .consts import MODEL_VERSION, AVAILABLE_MODELS
+from .consts import MODEL_VERSION, AVAILABLE_MODELS, DOWNLOAD_SOURCE
 from .models.ocr_model import OcrModel
 from .utils import (
     data_dir,
@@ -177,7 +177,7 @@ class Recognizer(object):
                     % ((self._model_name, self._model_backend),)
                 )
             url = AVAILABLE_MODELS.get_url(self._model_name, self._model_backend)
-            get_model_file(url, self._model_dir)
+            get_model_file(url, self._model_dir, download_source=DOWNLOAD_SOURCE)  # download the .zip file and unzip
             fps = glob(
                 '%s/%s*.%s' % (self._model_dir, self._model_file_prefix, model_ext)
             )
