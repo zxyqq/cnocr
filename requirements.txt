@@ -33,7 +33,7 @@ click==8.1.7
     #   -r requirements.in
     #   cnstd
     #   wandb
-cnstd==1.2.3.4
+cnstd==1.2.3.5
     # via -r requirements.in
 coloredlogs==15.0.1
     # via onnxruntime

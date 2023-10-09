@@ -33,7 +33,7 @@ from ..recognizer import Recognizer
 from .postprocess import build_post_process
 from .utility import create_predictor
 from .consts import PP_SPACE
-from ..consts import MODEL_VERSION, AVAILABLE_MODELS
+from ..consts import MODEL_VERSION, AVAILABLE_MODELS, DOWNLOAD_SOURCE
 
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ class PPRecognizer(Recognizer):
                     % ((self._model_name, self._model_backend),)
                 )
             url = AVAILABLE_MODELS.get_url(self._model_name, self._model_backend)
-            get_model_file(url, self._model_dir)
+            get_model_file(url, self._model_dir, download_source=DOWNLOAD_SOURCE)  # download the .zip file and unzip
 
         self._model_fp = model_fp
         logger.info('use model: %s' % self._model_fp)
