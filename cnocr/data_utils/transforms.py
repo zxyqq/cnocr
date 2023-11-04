@@ -364,7 +364,7 @@ _train_alb_transform = alb.Compose(
         alb.InvertImg(p=0.3),
         ToSingleChannelGray(always_apply=True),
         CustomNormalize(always_apply=True),
-        # alb.Normalize((0.7931, 0.7931, 0.7931), (0.1738, 0.1738, 0.1738)),
+        # alb.Normalize(0.456045, 0.224567, always_apply=True),
         # ToTensorV2(),
     ]
 )
@@ -376,6 +376,7 @@ _test_alb_transform = alb.Compose(
         CustomRandomCrop((6, 8), p=0.8),
         ToSingleChannelGray(always_apply=True),
         CustomNormalize(always_apply=True),
+        # alb.Normalize(0.456045, 0.224567, always_apply=True),
     ]
 )
 
