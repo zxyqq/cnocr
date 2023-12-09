@@ -289,7 +289,7 @@ class AvailableModels(object):
             return self.CNOCR_SPACE
         elif (model_name, model_backend) in self.OUTER_MODELS:
             return self.OUTER_MODELS[(model_name, model_backend)]['space']
-        return None
+        return self.CNOCR_SPACE
 
     def get_vocab_fp(
         self, model_name: str, model_backend: str
@@ -300,9 +300,10 @@ class AvailableModels(object):
             return self.OUTER_MODELS[(model_name, model_backend)]['vocab_fp']
         else:
             logger.warning(
-                'no vocab_fp is found for model %s' % ((model_name, model_backend),)
+                'no predefined vocab_fp is found for model %s, use the default %s'
+                % ((model_name, model_backend), CN_VOCAB_FP)
             )
-            return None
+            return CN_VOCAB_FP
 
     def get_epoch(self, model_name, model_backend) -> Optional[int]:
         if (model_name, model_backend) in self.CNOCR_MODELS:
