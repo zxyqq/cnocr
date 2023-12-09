@@ -30,6 +30,7 @@ from multiprocessing import Process
 import subprocess
 
 import click
+import numpy as np
 import torchmetrics
 from torchvision import transforms as T
 import torch
@@ -41,10 +42,10 @@ from cnocr.utils import (
     check_model_name,
     save_img,
     read_img,
-    draw_ocr_results,
+    draw_ocr_results, read_charset,
 )
 from cnocr.data_utils.aug import NormalizeAug
-from cnocr.dataset import OcrDataModule
+from cnocr.dataset import OcrDataModule, OcrDataset
 from cnocr.trainer import PlTrainer, resave_model, Metrics
 from cnocr import CnOcr, gen_model
 from cnocr.recognizer import Recognizer
@@ -63,6 +64,74 @@ LEGAL_MODEL_NAMES = {
 @click.group(context_settings=_CONTEXT_SETTINGS)
 def cli():
     pass
+
+
+@cli.command('transform2hdf5')
+@click.option(
+    '-v',
+    '--vocab-fp',
+    type=str,
+    default=None,
+    help='识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表',
+)
+@click.option(
+    '-i',
+    '--index-dir',
+    type=str,
+    required=True,
+    help='索引文件所在的文件夹，会读取文件夹中的 train.tsv 和 dev.tsv 文件',
+)
+@click.option(
+    '--img-folder',
+    type=str,
+    required=True,
+    help='图片文件夹的路径',
+)
+@click.option(
+    '-o',
+    '--output-hdf5-fp',
+    type=str,
+    required=True,
+    help='输出hdf5文件的路径',
+)
+def transform_dataset_hdf5(
+        vocab_fp,
+        index_dir,
+        img_folder,
+        output_hdf5_fp,
+):
+    """训练识别模型"""
+    import h5py
+
+    train = OcrDataset(
+        Path(index_dir) / 'train.tsv',
+        img_folder,
+        transforms=None,
+        mode='train',
+        )
+    val = OcrDataset(
+        Path(index_dir) / 'dev.tsv',
+        img_folder,
+        transforms=None,
+        mode='val',
+        )
+
+    vocab, letter2id = read_charset(vocab_fp)
+
+    def dump_group(f, group, dataset):
+        train_group = f.create_group(group)
+        for idx, example in enumerate(iter(dataset)):
+            img, labels = example
+            train_group.create_dataset('%d-img' % idx, data=img)
+            label_ids = [letter2id[l] for l in labels]
+            train_group.create_dataset('%d-labels' % idx, data=np.array(label_ids))
+        logger.info('%d examples in group %s', len(train_group)/2, group)
+
+    with h5py.File(output_hdf5_fp, 'w') as f:
+        dump_group(f, 'train', train)
+        dump_group(f, 'val', val)
+
+    logger.info('Datasets are transformed to file %s', output_hdf5_fp)
 
 
 @cli.command('train')
