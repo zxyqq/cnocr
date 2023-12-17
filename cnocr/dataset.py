@@ -26,6 +26,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset, Sampler
 
 from .utils import read_charset, read_tsv_file, read_img, resize_img, pad_img_seq
+from .dataset_utils import gen_dataset, collate_fn as hf_collate_fn
 
 
 class OcrDataset(Dataset):
@@ -62,37 +63,8 @@ class OcrDataset(Dataset):
         return (img, labels) if self.mode != 'test' else (img,)
 
 
-class OcrH5Dataset(Dataset):
-    def __init__(self, index_fp, vocab, transforms=None, mode='train'):
-        super().__init__()
-        import h5py
-
-        f = h5py.File(index_fp, 'r')
-        self.data = f[mode]
-        self.vocab = vocab
-        self.transforms = transforms
-        self.mode = mode
-
-    def __len__(self):
-        return len(self.data) // 2
-
-    def __getitem__(self, item):
-        # img_fp = self.img_fp_list[item]
-        # img = read_img(img_fp).transpose((2, 0, 1))  # res: [1, H, W]
-        # img = resize_img(img)
-        img = torch.tensor(self.data[f'{item}-img'])
-        if self.transforms is not None:
-            img = self.transforms(img)
-
-        if self.mode != 'test':
-            label_ids = np.array(self.data[f'{item}-labels']).tolist()
-            labels = [self.vocab[idx] for idx in label_ids]
-
-        return (img, labels) if self.mode != 'test' else (img,)
-
-
 class BucketSampler(Sampler):
-    def __init__(self, data_source, bucket_size: Optional[int]=None):
+    def __init__(self, data_source, bucket_size: Optional[int] = None):
         """
 
         Args:
@@ -154,32 +126,32 @@ class OcrDataModule(pt.LightningDataModule):
 
         self.train_transforms = train_transforms
         self.val_transforms = val_transforms
-        if self.index_dir.is_file():
-            self.train = OcrH5Dataset(
-                self.index_dir,
-                self.vocab,
-                transforms=self.train_transforms,
-                mode='train',
-            )
-            self.val = OcrH5Dataset(
-                self.index_dir,
-                self.vocab,
-                transforms=self.val_transforms,
-                mode='val',
-            )
-        else:
-            self.train = OcrDataset(
-                self.index_dir / 'train.tsv',
-                self.img_folder,
-                transforms=self.train_transforms,
-                mode='train',
-                )
-            self.val = OcrDataset(
-                self.index_dir / 'dev.tsv',
-                self.img_folder,
-                transforms=self.val_transforms,
-                mode='val',
-                )
+        # self.train = OcrDataset(
+        #     self.index_dir / 'train.tsv',
+        #     self.img_folder,
+        #     transforms=self.train_transforms,
+        #     mode='train',
+        #     )
+        # self.val = OcrDataset(
+        #     self.index_dir / 'dev.tsv',
+        #     self.img_folder,
+        #     transforms=self.val_transforms,
+        #     mode='val',
+        #     )
+        self.train = gen_dataset(
+            self.index_dir / 'train.tsv',
+            img_folder=self.img_folder,
+            transforms=self.train_transforms,
+            mode='train',
+            num_workers=self.num_workers,
+        )
+        self.val = gen_dataset(
+            self.index_dir / 'dev.tsv',
+            img_folder=self.img_folder,
+            transforms=self.val_transforms,
+            mode='val',
+            num_workers=self.num_workers,
+        )
 
     @property
     def vocab_size(self):
@@ -200,7 +172,7 @@ class OcrDataModule(pt.LightningDataModule):
             batch_size=self.batch_size,
             sampler=sampler,
             shuffle=shuffle,
-            collate_fn=collate_fn,
+            collate_fn=hf_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
@@ -210,7 +182,7 @@ class OcrDataModule(pt.LightningDataModule):
             self.val,
             batch_size=self.batch_size,
             shuffle=False,
-            collate_fn=collate_fn,
+            collate_fn=hf_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
