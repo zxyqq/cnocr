@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2023, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -139,6 +139,7 @@ class Bitmap(ImageOnlyTransform):
 
 
 class RandomStretchAug(alb.Resize):
+    """保持高度不变的情况下，对图像的宽度进行随机拉伸"""
     def __init__(
         self, min_ratio=0.9, max_ratio=1.1, min_width=8, always_apply=False, p=1
     ):
@@ -162,6 +163,14 @@ class CustomRandomCrop(ImageOnlyTransform):
     """从图像的四个边缘随机裁剪"""
 
     def __init__(self, crop_size, always_apply=False, p=1.0):
+        """
+        Initializes a new instance of the CustomRandomCrop class.
+
+        Parameters:
+            crop_size (tuple): The size of the crop, in pixels, (height, width).
+            always_apply (bool): Whether to always apply the crop. Defaults to False.
+            p (float): The probability of applying the crop. Defaults to 1.0.
+        """
         super(CustomRandomCrop, self).__init__(always_apply, p)
         self.crop_size = crop_size
 
@@ -370,6 +379,37 @@ _train_alb_transform = alb.Compose(
 )
 
 train_transform = TransformWrapper(_train_alb_transform)
+
+_ft_alb_transform = alb.Compose(
+    [
+        CustomRandomCrop((4, 4), p=0.8),
+        alb.OneOf([Erosion((2, 3)), Dilation((2, 3))], p=0.1),
+        TransparentOverlay(1.0, 0.1, alpha=0.4, p=0.2),  # 半透明的矩形框覆盖
+        alb.RandomBrightnessContrast(0.1, 0.1, True, p=0.1),
+        alb.ImageCompression(95, p=0.3),
+        alb.GaussNoise(20, p=0.2),
+        alb.GaussianBlur((3, 3), p=0.1),
+        alb.Emboss(p=0.3, alpha=(0.2, 0.5), strength=(0.2, 0.7)),
+        alb.OpticalDistortion(
+            always_apply=False,
+            p=0.2,
+            distort_limit=(-0.05, 0.05),
+            shift_limit=(-0.05, 0.05),
+            interpolation=0,
+            border_mode=0,
+            value=(0, 0, 0),
+            mask_value=None,
+        ),
+        RandomStretchAug(min_ratio=0.8, max_ratio=1.2, p=0.2, always_apply=False),
+        alb.InvertImg(p=0.3),
+        ToSingleChannelGray(always_apply=True),
+        CustomNormalize(always_apply=True),
+        # alb.Normalize(0.456045, 0.224567, always_apply=True),
+        # ToTensorV2(),
+    ]
+)
+
+ft_transform = TransformWrapper(_ft_alb_transform)
 
 _test_alb_transform = alb.Compose(
     [
