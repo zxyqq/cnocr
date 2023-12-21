@@ -42,7 +42,8 @@ from cnocr.utils import (
     check_model_name,
     save_img,
     read_img,
-    draw_ocr_results, read_charset,
+    draw_ocr_results,
+    read_charset,
 )
 from cnocr.data_utils.aug import NormalizeAug
 from cnocr.dataset import OcrDataModule, OcrDataset
@@ -88,9 +89,7 @@ def cli():
     help='识别模型训练使用的json配置文件，参考 `docs/examples/train_config.json`',
 )
 @click.option(
-    "--finetuning",
-    is_flag=True,
-    help="是否为精调模式（精调模式使用更温柔的transform）。默认为 `False`",
+    "--finetuning", is_flag=True, help="是否为精调模式（精调模式使用更温柔的transform）。默认为 `False`",
 )
 @click.option(
     '-r',
@@ -116,7 +115,12 @@ def train(
     pretrained_model_fp,
 ):
     """训练识别模型"""
-    from cnocr.data_utils.transforms import train_transform, ft_transform, test_transform
+    from cnocr.data_utils.transforms import (
+        train_transform,
+        ft_transform,
+        test_transform,
+    )
+
     check_model_name(rec_model_name)
     # train_transform = T.Compose(
     #     [
@@ -246,6 +250,9 @@ def visualize_example(example, fp_prefix):
 @click.option(
     "--draw-font-path", default='./docs/fonts/simfang.ttf', help="画出检测与识别效果图时使用的字体文件",
 )
+@click.option(
+    "--verbose", is_flag=True, default=False, help="是否打印详细日志信息。默认值为 `False`",
+)
 def predict(
     rec_model_name,
     rec_model_backend,
@@ -258,8 +265,14 @@ def predict(
     single_line,
     draw_results_dir,
     draw_font_path,
+    verbose,
 ):
-    """模型预测"""
+    """模型预测""",
+    if verbose:
+        logger = set_logger(log_level=logging.DEBUG)
+    else:
+        logger = set_logger(log_level=logging.INFO)
+
     fp_list = []
     if os.path.isfile(img_file_or_dir):
         fp_list.append(img_file_or_dir)
@@ -388,6 +401,11 @@ def evaluate(
     verbose,
 ):
     """评估模型效果。检测模型使用 `det_model_name='naive_det'` 。"""
+    if verbose:
+        logger = set_logger(log_level=logging.DEBUG)
+    else:
+        logger = set_logger(log_level=logging.INFO)
+
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
@@ -399,10 +417,7 @@ def evaluate(
 
     fn_labels_list = read_input_file(eval_index_fp)
 
-    metrics_config = {
-        "complete_match": {},
-        "cer": {}
-    }
+    metrics_config = {"complete_match": {}, "cer": {}}
     metrics = Metrics.from_config(metrics_config)
     cer = torchmetrics.text.CharErrorRate()
     miss_cnt, redundant_cnt = Counter(), Counter()

@@ -109,6 +109,24 @@ def check_model_name(model_name):
     assert decoder_type in DECODER_CONFIGS
 
 
+def get_default_ort_providers():
+    try:
+        import onnxruntime as ort
+    except ImportError:
+        raise ImportError('Please install onnxruntime first:\n'
+                          '  - For CPU only, use `pip install onnxruntime`;\n'
+                          '  - For GPU, use `pip install onnxruntime-gpu`.')
+
+    providers = []
+    if 'CPUExecutionProvider' in ort.get_available_providers():
+        providers.append('CPUExecutionProvider')
+    if 'CUDAExecutionProvider' in ort.get_available_providers():
+        providers.insert(0, 'CUDAExecutionProvider')  # GPU优先
+    if len(providers) == 0:
+        providers = ort.get_available_providers()
+    return providers
+
+
 def to_numpy(tensor: torch.Tensor) -> np.ndarray:
     return (
         tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
