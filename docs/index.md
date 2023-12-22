@@ -328,6 +328,7 @@ print(ocr_out)
 * [x] 基于 PyTorch 训练更高效的模型
 * [x] 支持列格式的文字识别
 * [x] 打通与 [CnSTD](https://github.com/breezedeus/cnstd) 的无缝衔接（since `V2.2`）
+* [ ] 模型精度进一步优化
 * [ ] 支持更多的应用场景，如公式识别、表格识别、版面分析等
 
 ## 给作者加油鼓气

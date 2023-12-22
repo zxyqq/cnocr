@@ -7,13 +7,11 @@
 使用命令 **`cnocr predict`** 预测单个文件或文件夹中所有图片，以下是使用说明：
 
 ```bash
-> cnocr predict -h
+$ cnocr predict -h
 Usage: cnocr predict [OPTIONS]
 
-  模型预测
-
 Options:
-  -m, --rec-model-name TEXT       识别模型名称。默认值为 densenet_lite_136-fc
+  -m, --rec-model-name TEXT       识别模型名称。默认值为 densenet_lite_136-gru
   -b, --rec-model-backend [pytorch|onnx]
                                   识别模型类型。默认值为 `onnx`
   -v, --rec-vocab-fp TEXT         识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表
@@ -28,13 +26,14 @@ Options:
                                   再进行识别
   --draw-results-dir TEXT         画出的检测与识别效果图所存放的目录；取值为 `None` 表示不画图
   --draw-font-path TEXT           画出检测与识别效果图时使用的字体文件
+  --verbose                       是否打印详细日志信息。默认值为 `False`
   -h, --help                      Show this message and exit.
 ```
 
 例如可以使用以下命令对图片 `docs/examples/rand_cn1.png` 进行文字识别：
 
 ```bash
-> cnocr predict -i docs/examples/rand_cn1.png -s
+$ cnocr predict -i docs/examples/rand_cn1.png -s
 ```
 
 具体使用也可参考文件 [Makefile](https://github.com/breezedeus/cnocr/blob/master/Makefile) 。
@@ -44,13 +43,13 @@ Options:
 使用命令 **`cnocr evaluate`** 在指定的数据集上评估模型效果，以下是使用说明：
 
 ```bash
-> cnocr evaluate -h
+$ cnocr evaluate -h
 Usage: cnocr evaluate [OPTIONS]
 
   评估模型效果。检测模型使用 `det_model_name='naive_det'` 。
 
 Options:
-  -m, --rec-model-name TEXT       识别模型名称。默认值为 densenet_lite_136-fc
+  -m, --rec-model-name TEXT       识别模型名称。默认值为 densenet_lite_136-gru
   -b, --rec-model-backend [pytorch|onnx]
                                   识别模型类型。默认值为 `onnx`
   -v, --rec-vocab-fp TEXT         识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表
@@ -69,7 +68,7 @@ Options:
 例如可以使用以下命令评估 `data/test/dev.tsv` 中指定的所有样本：
 
 ```bash
-> cnocr evaluate -i data/test/dev.tsv --img-folder data/images 
+$ cnocr evaluate -i data/test/dev.tsv --img-folder data/images 
 ```
 
 具体使用也可参考文件 [Makefile](https://github.com/breezedeus/cnocr/blob/master/Makefile) 。
@@ -79,18 +78,19 @@ Options:
 使用命令 **`cnocr train`**  训练文本检测模型，以下是使用说明：
 
 ```bash
-> cnocr train -h
+$ cnocr train -h
 Usage: cnocr train [OPTIONS]
 
   训练识别模型
 
 Options:
-  -m, --rec-model-name TEXT       识别模型名称。默认值为 `densenet_lite_136-fc`
+  -m, --rec-model-name TEXT       识别模型名称。默认值为 `densenet_lite_136-gru`
   -i, --index-dir TEXT            索引文件所在的文件夹，会读取文件夹中的 train.tsv 和 dev.tsv 文件
                                   [required]
   --train-config-fp TEXT          识别模型训练使用的json配置文件，参考
                                   `docs/examples/train_config.json`
                                   [required]
+  --finetuning                    是否为精调模式（精调模式使用更温柔的transform）。默认为 `False`
   -r, --resume-from-checkpoint TEXT
                                   恢复此前中断的训练状态，继续训练识别模型。所以文件中应该包含训练状态。默认为
                                   `None`
@@ -103,7 +103,7 @@ Options:
 例如可以使用以下命令进行训练：
 
 ```bash
-> cnocr train -m densenet_lite_136-fc --index-dir data/test --train-config-fp docs/examples/train_config.json
+$ cnocr train -m densenet_lite_136-gru --index-dir data/test --train-config-fp docs/examples/train_config.json
 ```
 
 训练数据的格式见文件夹 [data/test](https://github.com/breezedeus/cnocr/blob/master/data/test) 中的 [train.tsv](https://github.com/breezedeus/cnocr/blob/master/data/test/train.tsv) 和 [dev.tsv](https://github.com/breezedeus/cnocr/blob/master/data/test/dev.tsv) 文件。
@@ -123,7 +123,7 @@ CnOCR 自 **V2.2.1** 开始加入了基于 FastAPI 的HTTP服务。开启服务�
 使用命令 **`cnocr serve`**  启动API服务，以下是使用说明：
 
 ```bash
-> cnocr serve -h
+$ cnocr serve -h
 Usage: cnocr serve [OPTIONS]
 
   开启HTTP服务。
@@ -141,7 +141,7 @@ Options:
 例如使用以下命令启动服务：
 
 ```bash
-> cnocr serve -p 8501
+$ cnocr serve -p 8501
 ```
 
 
@@ -155,7 +155,7 @@ Options:
 训练好的模型会存储训练状态，使用命令 **`cnocr resave`**  去掉与预测无关的数据，降低模型大小。
 
 ```bash
-> cnocr resave -h
+$ cnocr resave -h
 Usage: cnocr resave [OPTIONS]
 
   训练好的识别模型会存储训练状态，使用此命令去掉预测时无关的数据，降低模型大小
@@ -166,20 +166,32 @@ Options:
   -h, --help                  Show this message and exit.
 ```
 
+示例：
+
+```bash
+$ cnocr resave -i cnocr-v2.3-densenet_lite_136-gru-epoch=005.ckpt -o cnocr-v2.3-densenet_lite_136-gru-epoch=005-model.ckpt
+```
+
 ## PyTorch 模型导出为 ONNX 模型
 
 把训练好的模型导出为 ONNX 格式。
 
 ```bash
-> cnocr export-onnx -h
+$ cnocr export-onnx -h
 Usage: cnocr export-onnx [OPTIONS]
 
   把训练好的识别模型导出为 ONNX 格式。
 
 Options:
-  -m, --rec-model-name TEXT   识别模型名称。默认值为 `densenet_lite_136-fc`
+  -m, --rec-model-name TEXT   识别模型名称。默认值为 `densenet_lite_136-gru`
   -v, --rec-vocab-fp TEXT     识别模型使用的词表。默认取值为 `None` 表示使用系统设定的词表
   -i, --input-model-fp TEXT   输入的识别模型文件路径。 默认为 `None`，表示使用系统自带的预训练模型
   -o, --output-model-fp TEXT  输出的识别模型文件路径（.onnx）  [required]
   -h, --help                  Show this message and exit.
+```
+
+示例：
+
+```bash
+$ cnocr export-onnx -m densenet_lite_136-gru -i cnocr-v2.3-densenet_lite_136-gru-epoch=005-model.ckpt -o cnocr-v2.3-densenet_lite_136-gru-epoch=005-model.onnx
 ```
