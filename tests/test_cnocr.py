@@ -40,7 +40,7 @@ logger = set_logger(log_level=logging.INFO)
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 example_dir = os.path.join(root_dir, 'docs/examples')
-CNOCR = CnOcr(rec_model_name='densenet_lite_136-fc', det_model_name='naive_det')
+CNOCR = CnOcr(rec_model_name='densenet_lite_136-gru', det_model_name='naive_det')
 
 SINGLE_LINE_CASES = [
     ('20457890_2399557098.jpg', ['就会哈哈大笑。3.0']),
@@ -220,7 +220,7 @@ def test_cand_alphabet():
     img_fp = os.path.join(example_dir, 'hybrid.png')
 
     ocr = CnOcr(
-        'densenet_lite_136-fc', det_model_name='naive_det', cand_alphabet=NUMBERS
+        'densenet_lite_136-gru', det_model_name='naive_det', cand_alphabet=NUMBERS
     )
     pt_pred = ocr.ocr(img_fp)
     pred = [line_p['text'] for line_p in pt_pred]
@@ -228,7 +228,7 @@ def test_cand_alphabet():
     assert len(pred) == 1 and pred[0] == '012345678'
 
     ocr = CnOcr(
-        'densenet_lite_136-fc',
+        'densenet_lite_136-gru',
         rec_model_backend='onnx',
         det_model_name='naive_det',
         cand_alphabet=NUMBERS,
@@ -247,7 +247,7 @@ def test_onnx(img_fp, expected):
     img_fp = os.path.join(example_dir, img_fp)
 
     pt_ocr = CnOcr(
-        'densenet_lite_136-fc', rec_model_backend='pytorch', det_model_name='naive_det'
+        'densenet_lite_136-gru', rec_model_backend='pytorch', det_model_name='naive_det'
     )
     start_time = time.time()
     pt_preds = pt_ocr.ocr_for_single_line(img_fp)
@@ -255,7 +255,7 @@ def test_onnx(img_fp, expected):
     print(f'\npytorch time cost {end_time - start_time}', pt_preds)
 
     onnx_ocr = CnOcr(
-        'densenet_lite_136-fc', rec_model_backend='onnx', det_model_name='naive_det'
+        'densenet_lite_136-gru', rec_model_backend='onnx', det_model_name='naive_det'
     )
     start_time = time.time()
     onnx_preds = onnx_ocr.ocr_for_single_line(img_fp)

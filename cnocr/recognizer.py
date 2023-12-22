@@ -59,7 +59,7 @@ class Recognizer(object):
 
     def __init__(
         self,
-        model_name: str = 'densenet_lite_136-fc',
+        model_name: str = 'densenet_lite_136-gru',
         *,
         cand_alphabet: Optional[Union[Collection, str]] = None,
         context: str = 'cpu',  # ['cpu', 'gpu', 'cuda']
@@ -73,7 +73,7 @@ class Recognizer(object):
         识别模型初始化函数。
 
         Args:
-            model_name (str): 模型名称。默认为 `densenet_lite_136-fc`
+            model_name (str): 模型名称。默认为 `densenet_lite_136-gru`
             cand_alphabet (Optional[Union[Collection, str]]): 待识别字符所在的候选集合。默认为 `None`，表示不限定识别字符范围
             context (str): 'cpu', or 'gpu'。表明预测时是使用CPU还是GPU。默认为 `cpu`。
                 此参数仅在 `model_backend=='pytorch'` 时有效。
@@ -81,7 +81,7 @@ class Recognizer(object):
             model_backend (str): 'pytorch', or 'onnx'。表明预测时是使用 PyTorch 版本模型，还是使用 ONNX 版本模型。
                 同样的模型，ONNX 版本的预测速度一般是 PyTorch 版本的2倍左右。默认为 'onnx'。
             root (Union[str, Path]): 模型文件所在的根目录。
-                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.1/densenet_lite_136-fc`。
+                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.3/densenet_lite_136-gru`。
                 Windows下默认值为 `C:/Users/<username>/AppData/Roaming/cnocr`。
             vocab_fp (Optional[Union[str, Path]]): 字符集合的文件路径，即 `label_cn.txt` 文件路径。取值为 `None` 表示使用系统设定的词表。
                 若训练的自有模型更改了字符集，看通过此参数传入新的字符集文件路径。
@@ -93,10 +93,10 @@ class Recognizer(object):
             >>> rec = Recognizer()
 
             使用指定模型：
-            >>> rec = Recognizer(model_name='densenet_lite_136-fc')
+            >>> rec = Recognizer(model_name='densenet_lite_136-gru')
 
             识别时只考虑数字：
-            >>> rec = Recognizer(model_name='densenet_lite_136-fc', cand_alphabet='0123456789')
+            >>> rec = Recognizer(model_name='densenet_lite_136-gru', cand_alphabet='0123456789')
 
         """
         model_backend = model_backend.lower()

@@ -54,7 +54,7 @@ from cnocr.recognizer import Recognizer
 _CONTEXT_SETTINGS = {"help_option_names": ['-h', '--help']}
 logger = set_logger(log_level=logging.INFO)
 
-DEFAULT_MODEL_NAME = 'densenet_lite_136-fc'
+DEFAULT_MODEL_NAME = 'densenet_lite_136-gru'
 LEGAL_MODEL_NAMES = {
     enc_name + '-' + dec_name
     for enc_name in ENCODER_CONFIGS.keys()

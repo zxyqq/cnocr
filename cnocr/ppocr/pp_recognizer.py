@@ -59,8 +59,8 @@ class PPRecognizer(Recognizer):
             cand_alphabet (Optional[Union[Collection, str]]): 待识别字符所在的候选集合。默认为 `None`，表示不限定识别字符范围
             model_fp (Optional[str]): 如果不使用系统自带的模型，可以通过此参数直接指定所使用的模型文件（'.ckpt' 文件）
             root (Union[str, Path]): 模型文件所在的根目录
-                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.1/densenet_lite_136-fc`
-                Windows下默认值为 `C:/Users/<username>/AppData/Roaming/cnocr`
+                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.3/ppocr`
+                Windows下默认值为 `C:/Users/<username>/AppData/Roaming/cnocr/2.3/ppocr`
             rec_image_shape (str): 输入图片尺寸，无需更改使用默认值即可。默认值：`"3, 32, 320"`
             use_space_char (bool): 是否使用空格字符，无需更改使用默认值即可。默认值：`True`
             **kwargs:
