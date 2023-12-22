@@ -298,6 +298,22 @@ Refer to [CnSTD](https://github.com/breezedeus/CnSTD?tab=readme-ov-file#%E5%B7%B
 
 ### Pre-trained Recognition Models
 
+Compared to the CnOCR V2.2.* versions, most models in **V2.3** have been retrained and fine-tuned, offering higher accuracy than the older versions. Additionally, two series of models with larger parameter volumes have been added:
+
+  * `*-densenet_lite_246-gru_base`: Currently available for **Knowledge Planet** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ) members, it will be open-sourced for free in February 2024.
+  * `*-densenet_lite_666-gru_large`: **Pro models**, available for use after purchase. The purchase link: [https://ocr.lemonsqueezy.com](https://ocr.lemonsqueezy.com).
+
+Models in **V2.3** are categorized into the following types based on usage scenarios:
+
+* `scene`: For scene images, suitable for recognizing text in general photography. Models in this category start with `scene-`, such as the `scene-densenet_lite_136-gru` model.
+* `doc`: For document images, suitable for recognizing text in regular document screenshots, like scanned book pages. Models in this category start with `doc-`, such as the `doc-densenet_lite_136-gru` model.
+* `number`: Specifically for recognizing **only numbers** (able to recognize only the ten digits `0~9`), suitable for scenarios like bank card numbers, ID numbers, etc. Models in this category start with `number-`, such as the `number-densenet_lite_136-gru` model.
+* `general`: For general scenarios, suitable for images without a clear preference. Models in this category do not have a specific prefix and maintain the same naming convention as older versions, such as the `densenet_lite_136-gru` model.
+
+> Note ⚠️: The above descriptions are for reference only. It is recommended to choose models based on actual performance.
+
+For more details, see: [Available Models](https://cnocr.readthedocs.io/zh/latest/models/).
+
 | `rec_model_name`                                                                                                      | PyTorch Version | ONNX Version | Model original source | Model File Size | Supported Language                       | Whether to support vertical text recognition |
 |-----------------------------------------------------------------------------------------------------------------------|-----------------| --------- | ------------ | ------------ | ------------------------ | -------------------- |
 | **densenet_lite_136-gru** 🆕                                                                                          | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
