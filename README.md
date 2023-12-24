@@ -37,7 +37,7 @@
 ---
 </div>
 
-### [Update 2023.12.22]：发布 V2.3
+### [Update 2023.12.24]：发布 V2.3
 
 主要变更：
 
@@ -50,7 +50,9 @@
   > 注意 ⚠️：以上说明仅为参考，具体选择模型时建议以实际效果为准。
 * 加入了两个更大的系列模型：
   * `*-densenet_lite_246-gru_base`：优先供 **知识星球** [**CnOCR/CnSTD私享群**](https://t.zsxq.com/FEYZRJQ) 会员使用，一个月后会免费开源。
-  * `*-densenet_lite_666-gru_large`：Pro 模型，购买后可使用。购买链接见文档：
+  * `*-densenet_lite_666-gru_large`：Pro 模型，购买后可使用。
+  
+更多细节请参考：[CnOCR V2.3 新版发布：模型更好、更多、更大 | Breezedeus.com](https://www.breezedeus.com/article/cnocr-v2.3-better-more)。
 
 
 

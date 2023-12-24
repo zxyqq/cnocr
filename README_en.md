@@ -36,7 +36,7 @@
 ---
 </div>
 
-### [Update 2023.12.22]: Release of V2.3
+### [Update 2023.12.24]: Release of V2.3
 
 Major Changes:
 
@@ -51,6 +51,7 @@ Major Changes:
   * `*-densenet_lite_246-gru_base`: Initially available for **Planet of Knowledge** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ) members, to be open-sourced for free after one month.
   * `*-densenet_lite_666-gru_large`: Pro models, available for use after purchase. Purchase link can be found at [https://ocr.lemonsqueezy.com](https://ocr.lemonsqueezy.com/).
 
+For more details, please refer to: [CnOCR V2.3 New Release: Better, More, and Larger Models | Breezedeus.com](https://www.breezedeus.com/article/cnocr-v2.3-better-more).
 
 [**CnOCR**](https://github.com/breezedeus/cnocr)  is an **Optical Character Recognition (OCR)** toolkit for **Python 3**. It supports recognition of common characters in **English and numbers**, **Simplified Chinese**, **Traditional Chinese** (some models), and **vertical text** recognition. It comes with [**20+ well-trained models**](https://cnocr.readthedocs.io/zh/latest/models/) for different application scenarios and can be used directly after installation. Also, CnOCR provides simple training [commands](https://cnocr.readthedocs.io/zh/latest/train/) for users to train their own models. Welcome to join the WeChat contact group.
 
