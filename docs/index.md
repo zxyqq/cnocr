@@ -4,6 +4,7 @@
 
 # CnOCR
 [![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/cnocr)
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh%2Flatest%2F&label=Visitors&countColor=%23ff8a65&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh%2Flatest%2F)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
 [![PyPI version](https://badge.fury.io/py/cnocr.svg)](https://badge.fury.io/py/cnocr)
 [![forks](https://img.shields.io/github/forks/breezedeus/cnocr)](https://github.com/breezedeus/cnocr)
