@@ -46,7 +46,6 @@ from cnocr.utils import (
     read_charset,
 )
 from cnocr.data_utils.aug import NormalizeAug
-from cnocr.dataset import OcrDataModule, OcrDataset
 from cnocr.trainer import PlTrainer, resave_model, Metrics
 from cnocr import CnOcr, gen_model
 from cnocr.recognizer import Recognizer
@@ -115,6 +114,8 @@ def train(
     pretrained_model_fp,
 ):
     """训练识别模型"""
+    from cnocr.dataset import OcrDataModule
+
     from cnocr.data_utils.transforms import (
         train_transform,
         ft_transform,
