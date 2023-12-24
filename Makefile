@@ -38,7 +38,7 @@ package:
 	rm -rf build
 	python setup.py sdist bdist_wheel
 
-VERSION = 2.2.4.2
+VERSION := $(shell sed -n "s/^__version__ = '\(.*\)'/\1/p" cnocr/__version__.py)
 upload:
 	python -m twine upload  dist/cnocr-$(VERSION)* --verbose
 

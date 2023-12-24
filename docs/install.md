@@ -14,6 +14,12 @@ $ pip install cnocr[ort-cpu]
 $ pip install cnocr[ort-gpu]
 ```
 
+如果要训练自己的模型，，可以使用以下命令安装：
+
+```bash
+$ pip install cnocr[dev]
+```
+
 
 安装速度慢的话，可以指定国内的安装源，如使用豆瓣源：
 

@@ -57,5 +57,5 @@ def test_trainer():
         "pl_checkpoint_mode": "max",
     }
     trainer = PlTrainer(config)
-    model = gen_model('densenet_lite_136-fc', data_mod.vocab)
+    model = gen_model('densenet_lite_136-gru', data_mod.vocab)
     trainer.fit(model, datamodule=data_mod)

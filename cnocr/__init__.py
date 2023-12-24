@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2021, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -26,7 +26,7 @@ from .consts import (
     NUMBERS,
     ENG_LETTERS,
 )
-from .utils import read_img
+from .utils import read_img, set_logger
 from .cn_ocr import CnOcr
 from .recognizer import gen_model
 from .line_split import line_split

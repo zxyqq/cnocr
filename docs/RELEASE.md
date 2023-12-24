@@ -1,5 +1,21 @@
 # Release Notes
 
+### Update 2023.12.24：发布 V2.3
+
+主要变更：
+
+* 重新训练了所有的模型，比上一版精度更高。
+* 模型按使用场景分为 3 大类场景：
+  * `scene`：场景图片，适合识别一般拍照图片中的文字。
+  * `doc`：文档图片，适合识别规则文档的截图图片，如书籍扫描件等。
+  * `general`: 通用场景，适合图片无明显倾向的一般图片。
+  > 注意 ⚠️：以上说明仅供参考，具体选择模型时建议以实际效果为准。
+* 加入了两个更大的系列模型：
+  * `*-densenet_lite_246-gru_base`：优先供 **知识星球** [**CnOCR/CnSTD私享群**](https://t.zsxq.com/FEYZRJQ) 会员使用，一个月后会免费开源。
+  * `*-densenet_lite_666-gru_large`：Pro 模型，购买后可使用。
+
+更多细节请参考：[CnOCR V2.3 新版发布：模型更好、更多、更大 | Breezedeus.com](https://www.breezedeus.com/article/cnocr-v2.3-better-more)。
+
 ### Update 2023.10.09：发布 V2.2.4.2
 
 主要变更：

@@ -3,6 +3,7 @@
   <div>&nbsp;</div>
 
 [![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://cnocr.readthedocs.io/zh/latest/)
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
 [![Docs](https://readthedocs.org/projects/cnocr/badge/?version=latest)](https://cnocr.readthedocs.io/zh/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/cnocr.svg)](https://badge.fury.io/py/cnocr)
@@ -36,16 +37,22 @@
 ---
 </div>
 
-### [Update 2023.09.27]: Released V2.2.4
+### [Update 2023.12.24]: Release of V2.3
 
-Main Changes:
-* Added a series of pure numeric recognition models `number-*` (see [Pre-trained Recognition Models](#pre-trained-recognition-models)), suitable for pure numeric recognition scenarios such as bank card recognition, ID card recognition, coin year recognition, etc.
-* Adapted with the new versions of various packages, such as `pytorch_lightning`, `onnxruntime`, `pillow`, etc.
-* Optimized the data augmentation methods used in the training process and adopted the data augmentation methods from **Nougat**.
-* Added support for larger models, such as `densenet-lite-666`, `gru_large`, etc.
-* The previous `*-gru` series models are now also available in ONNX version.
-* Fixed a bunch of bugs, such as `val-complete_match-epoch` always being `0` during the training process.
+Major Changes:
 
+* All models have been retrained, offering higher accuracy than the previous version.
+* Models are categorized into several types based on usage scenarios (see [Pre-trained Recognition Models](#pre-trained-recognition-models)):
+  * `scene`: For scene images, suitable for recognizing text in general photography. Models in this category start with `scene-`, such as the `scene-densenet_lite_136-gru` model.
+  * `doc`: For document images, suitable for recognizing text in regular document screenshots, like scanned book pages. Models in this category start with `doc-`, such as the `doc-densenet_lite_136-gru` model.
+  * `number`: Specifically for recognizing **only numbers** (able to recognize only the ten digits `0~9`), suitable for scenarios like bank card numbers, ID numbers, etc. Models in this category start with `number-`, such as the `number-densenet_lite_136-gru` model.
+  * `general`: For general scenarios, suitable for images without a clear preference. Models in this category do not have a specific prefix and maintain the same naming convention as older versions, such as the `densenet_lite_136-gru` model.
+  > Note ⚠️: The above descriptions are for reference only. It is recommended to choose models based on actual performance.
+* Two larger series of models have been added:
+  * `*-densenet_lite_246-gru_base`: Initially available for **Planet of Knowledge** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ) members, to be open-sourced for free after one month.
+  * `*-densenet_lite_666-gru_large`: Pro models, available for use after purchase. Purchase link can be found at [https://ocr.lemonsqueezy.com](https://ocr.lemonsqueezy.com/).
+
+For more details, please refer to: [CnOCR V2.3 New Release: Better, More, and Larger Models | Breezedeus.com](https://www.breezedeus.com/article/cnocr-v2.3-better-more).
 
 [**CnOCR**](https://github.com/breezedeus/cnocr)  is an **Optical Character Recognition (OCR)** toolkit for **Python 3**. It supports recognition of common characters in **English and numbers**, **Simplified Chinese**, **Traditional Chinese** (some models), and **vertical text** recognition. It comes with [**20+ well-trained models**](https://cnocr.readthedocs.io/zh/latest/models/) for different application scenarios and can be used directly after installation. Also, CnOCR provides simple training [commands](https://cnocr.readthedocs.io/zh/latest/train/) for users to train their own models. Welcome to join the WeChat contact group.
 
@@ -53,7 +60,16 @@ Main Changes:
   <img src="https://huggingface.co/datasets/breezedeus/cnocr-wx-qr-code/resolve/main/wx-qr-code.JPG" alt="WeChat Group" width="300px"/>
 </div>
 
-The author also maintains **Planet of Knowledge** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ), welcome to join. The **Planet of Knowledge Private Group** will release some CnOCR/CnSTD related private materials one after another, including [**more detailed training tutorials**](https://articles.zsxq.com/id_u6b4u0wrf46e.html), **non-public models**, answers to problems encountered during usage, etc. This group also releases the latest research materials related to OCR/STD. In addition, **the author in the private group provides free training services for unique data twice a month**.
+The author also maintains **Planet of Knowledge** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ), 
+where questions are more likely to receive prompt responses from the author. You are welcome to join. Knowledge Planet Members can enjoy the following benefits:
+
+* Access to download some non-open source paid models for free.
+* A 20% discount on the purchase of all other paid models.
+* Rapid responses from the author to various difficulties encountered during usage.
+* The author offers two free training services per month using unique data.
+* The group will continuously release exclusive materials related to CnOCR/CnSTD.
+* The group will regularly publish the latest research materials related to OCR, STD, CV, and more.
+
 
 ## Documentation
 
@@ -238,7 +254,13 @@ If you are using a **GPU** environment with an ONNX model, please install using 
 $ pip install cnocr[ort-gpu]
 ```
 
-If the installation is slow, you can specify a domestic installation source, such as using the Douban source: 
+If you want to train new models with your own data, please install using the following command:
+
+```bash
+$ pip install cnocr[dev]
+```
+
+If the installation is slow, you can specify a domestic installation source, such as using the Aliyun source: 
 
 ```bash
 $ pip install cnocr -i https://mirrors.aliyun.com/pypi/simple
@@ -259,6 +281,8 @@ More instructions can be found in the [installation documentation](https://cnocr
 
 ### Pre-trained Detection Models
 
+Refer to [CnSTD](https://github.com/breezedeus/CnSTD?tab=readme-ov-file#%E5%B7%B2%E6%9C%89std%E6%A8%A1%E5%9E%8B) for details.
+
 | `det_model_name`                                             | PyTorch Version | ONNX Version | Model original source | Model File Size | Supported Language                       | Whether to support vertical text detection |
 | ------------------------------------------------------------ | ------------ | --------- | ------------ | ------------ | ------------------------------ | -------------------- |
 | **en_PP-OCRv3_det**                                          | X            | √         | ppocr        | 2.3 M        | **English**、Numbers  | √                    |
@@ -276,22 +300,42 @@ More instructions can be found in the [installation documentation](https://cnocr
 
 ### Pre-trained Recognition Models
 
-| `rec_model_name`                                                                                         | PyTorch Version | ONNX Version | Model original source | Model File Size | Supported Language                       | Whether to support vertical text recognition |
-|----------------------------------------------------------------------------------------------------------| ------------ | --------- | ------------ | ------------ | ------------------------ | -------------------- |
-| **number-densenet_lite_136-fc** 🆕                                                                       | √ | √  | cnocr        | 2.7 M        | **Pure Numeric** (contains only the ten digits `0~9`) | X                    |
-| **number-densenet_lite_136-gru**  🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only)          | √            | √         | cnocr        | 5.5 M       | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
-| **number-densenet_lite_666-gru_large** 🆕 <br />（[Link](https://ocr.lemonsqueezy.com)） | √            | √         | cnocr        | 56 M      | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
-| **en_PP-OCRv3**                                                                                          | X            | √         | ppocr        | 8.5 M        | **English**、Numbers | √                    |
-| **en_number_mobile_v2.0**                                                                                | X            | √         | ppocr        | 1.8 M        | **English**、Numbers | √                    |
-| **chinese_cht_PP-OCRv3**                                                                                 | X            | √         | ppocr        | 11 M         | **Traditional Chinese**, English, Numbers | X     |
-| densenet_lite_114-fc                                                                                     | √            | √         | cnocr        | 4.9 M        | Simplified Chinese, English, Numbers | X                    |
-| densenet_lite_124-fc                                                                                     | √            | √         | cnocr        | 5.1 M        | Simplified Chinese, English, Numbers | X                    |
-| densenet_lite_134-fc                                                                                     | √            | √         | cnocr        | 5.4 M        | Simplified Chinese, English, Numbers | X                    |
-| **densenet_lite_136-fc**                                                                                 | √            | √         | cnocr        | 5.9 M        | Simplified Chinese, English, Numbers | X                    |
-| densenet_lite_134-gru                                                                                    | √            | √         | cnocr        | 11 M         | Simplified Chinese, English, Numbers | X                    |
-| densenet_lite_136-gru                                                                                    | √            | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
-| ch_PP-OCRv3                                                                                              | X            | √         | ppocr        | 10 M         | Simplified Chinese, English, Numbers | √                    |
-| ch_ppocr_mobile_v2.0                                                                                     | X            | √         | ppocr        | 4.2 M        | Simplified Chinese, English, Numbers | √                    |
+Compared to the CnOCR V2.2.* versions, most models in **V2.3** have been retrained and fine-tuned, offering higher accuracy than the older versions. Additionally, two series of models with larger parameter volumes have been added:
+
+  * `*-densenet_lite_246-gru_base`: Currently available for **Knowledge Planet** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ) members, it will be open-sourced for free in February 2024.
+  * `*-densenet_lite_666-gru_large`: **Pro models**, available for use after purchase. The purchase link: [https://ocr.lemonsqueezy.com](https://ocr.lemonsqueezy.com).
+
+Models in **V2.3** are categorized into the following types based on usage scenarios:
+
+* `scene`: For scene images, suitable for recognizing text in general photography. Models in this category start with `scene-`, such as the `scene-densenet_lite_136-gru` model.
+* `doc`: For document images, suitable for recognizing text in regular document screenshots, like scanned book pages. Models in this category start with `doc-`, such as the `doc-densenet_lite_136-gru` model.
+* `number`: Specifically for recognizing **only numbers** (able to recognize only the ten digits `0~9`), suitable for scenarios like bank card numbers, ID numbers, etc. Models in this category start with `number-`, such as the `number-densenet_lite_136-gru` model.
+* `general`: For general scenarios, suitable for images without a clear preference. Models in this category do not have a specific prefix and maintain the same naming convention as older versions, such as the `densenet_lite_136-gru` model.
+
+> Note ⚠️: The above descriptions are for reference only. It is recommended to choose models based on actual performance.
+
+For more details, see: [Available Models](https://cnocr.readthedocs.io/zh/latest/models/).
+
+| `rec_model_name`                                                                                                      | PyTorch Version | ONNX Version | Model original source | Model File Size | Supported Language                       | Whether to support vertical text recognition |
+|-----------------------------------------------------------------------------------------------------------------------|-----------------| --------- | ------------ | ------------ | ------------------------ | -------------------- |
+| **densenet_lite_136-gru** 🆕                                                                                          | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
+| **scene-densenet_lite_136-gru** 🆕                                                                                    | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
+| **doc-densenet_lite_136-gru** 🆕                                                                                      | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
+| **densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon)       | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
+| **scene-densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon) | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
+| **doc-densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon)   | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
+| **densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                             | √              | √         | cnocr        | 82 M         | Simplified Chinese, English, Numbers | X                    |
+| **scene-densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                       | √              | √         | cnocr        | 82 M         | Simplified Chinese, English, Numbers | X                    |
+| **doc-densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                         | √              | √         | cnocr        | 82 M         | Simplified Chinese, English, Numbers | X                    |
+| **number-densenet_lite_136-fc** 🆕                                                                                    | √               | √  | cnocr        | 2.7 M        | **Pure Numeric** (contains only the ten digits `0~9`) | X                    |
+| **number-densenet_lite_136-gru**  🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon)                       | √               | √         | cnocr        | 5.5 M       | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
+| **number-densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                      | √               | √         | cnocr        | 56 M      | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
+| **en_PP-OCRv3**                                                                                                       | X               | √         | ppocr        | 8.5 M        | **English**、Numbers | √                    |
+| **en_number_mobile_v2.0**                                                                                             | X               | √         | ppocr        | 1.8 M        | **English**、Numbers | √                    |
+| **chinese_cht_PP-OCRv3**                                                                                              | X               | √         | ppocr        | 11 M         | **Traditional Chinese**, English, Numbers | X     |
+| densenet_lite_136-gru                                                                                                 | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
+| ch_PP-OCRv3                                                                                                           | X               | √         | ppocr        | 10 M         | Simplified Chinese, English, Numbers | √                    |
+| ch_ppocr_mobile_v2.0                                                                                                  | X               | √         | ppocr        | 4.2 M        | Simplified Chinese, English, Numbers | √                    |
 
 
 ## Future work
@@ -307,6 +351,7 @@ More instructions can be found in the [installation documentation](https://cnocr
 * [x] Train more efficient models based on PyTorch
 * [x] Support text recognition in column format  (since `V2.1.2`)
 * [x] Integration with [CnSTD](https://github.com/breezedeus/cnstd) (since `V2.2`)
+* [ ] Further optimization of model accuracy
 * [ ] Support more application scenarios, such as formula recognition, table recognition, layout analysis, etc.
 
 

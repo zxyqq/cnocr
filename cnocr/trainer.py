@@ -20,6 +20,7 @@
 import logging
 from pathlib import Path
 from typing import Any, Optional, Union, List
+import gc
 
 import numpy as np
 import torch
@@ -208,6 +209,7 @@ class WrapperLightningModule(pl.LightningModule):
         )
         self.train_metrics = self.get_metrics()
         self.training_step_outputs.clear()
+        gc.collect()
 
     def validation_step(self, batch, batch_idx):
         # if hasattr(self.model, 'validation_step'):
@@ -245,6 +247,7 @@ class WrapperLightningModule(pl.LightningModule):
         )
         self.val_metrics = self.get_metrics()
         self.val_step_outputs.clear()
+        gc.collect()
 
     def configure_optimizers(self):
         return [self._optimizer], [get_lr_scheduler(self.config, self._optimizer)]

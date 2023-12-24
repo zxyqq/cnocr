@@ -53,7 +53,7 @@ extras_require = {
     "ort-cpu": ["onnxruntime"],
     "ort-gpu": ["onnxruntime-gpu"],
     "serve": ["uvicorn[standard]", "fastapi", "python-multipart", "pydantic"],
-    "dev": ["albumentations", "pip-tools", "pytest"],
+    "dev": ["albumentations", "pip-tools", "pytest", "datasets[vision]"],
 }
 
 entry_points = """

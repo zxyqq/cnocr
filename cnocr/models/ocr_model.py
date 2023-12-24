@@ -201,7 +201,8 @@ class OcrModel(nn.Module):
             input_lengths, self.encoder.compress_ratio, rounding_mode='floor'
         )
         # print(f'forward div: {input_lengths=}')
-        if input_lengths.min() < 1:
+        if torch.any(input_lengths < 1).item():
+        # if input_lengths.min() < 1:
             logger.error(f'input_lengths min: {input_lengths.min()}, {input_lengths=}')
         # B x C x H x W --> B x C*H x W --> B x W x C*H
         c, h, w = features.shape[1], features.shape[2], features.shape[3]

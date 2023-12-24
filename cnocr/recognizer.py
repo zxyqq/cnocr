@@ -40,6 +40,7 @@ from .utils import (
     resize_img,
     pad_img_seq,
     to_numpy,
+    get_default_ort_providers,
 )
 from .data_utils.aug import NormalizeAug
 from .models.ctc import CTCPostProcessor
@@ -58,7 +59,7 @@ class Recognizer(object):
 
     def __init__(
         self,
-        model_name: str = 'densenet_lite_136-fc',
+        model_name: str = 'densenet_lite_136-gru',
         *,
         cand_alphabet: Optional[Union[Collection, str]] = None,
         context: str = 'cpu',  # ['cpu', 'gpu', 'cuda']
@@ -72,7 +73,7 @@ class Recognizer(object):
         识别模型初始化函数。
 
         Args:
-            model_name (str): 模型名称。默认为 `densenet_lite_136-fc`
+            model_name (str): 模型名称。默认为 `densenet_lite_136-gru`
             cand_alphabet (Optional[Union[Collection, str]]): 待识别字符所在的候选集合。默认为 `None`，表示不限定识别字符范围
             context (str): 'cpu', or 'gpu'。表明预测时是使用CPU还是GPU。默认为 `cpu`。
                 此参数仅在 `model_backend=='pytorch'` 时有效。
@@ -80,21 +81,22 @@ class Recognizer(object):
             model_backend (str): 'pytorch', or 'onnx'。表明预测时是使用 PyTorch 版本模型，还是使用 ONNX 版本模型。
                 同样的模型，ONNX 版本的预测速度一般是 PyTorch 版本的2倍左右。默认为 'onnx'。
             root (Union[str, Path]): 模型文件所在的根目录。
-                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.1/densenet_lite_136-fc`。
+                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.3/densenet_lite_136-gru`。
                 Windows下默认值为 `C:/Users/<username>/AppData/Roaming/cnocr`。
             vocab_fp (Optional[Union[str, Path]]): 字符集合的文件路径，即 `label_cn.txt` 文件路径。取值为 `None` 表示使用系统设定的词表。
                 若训练的自有模型更改了字符集，看通过此参数传入新的字符集文件路径。
-            **kwargs: 目前未被使用。
+            **kwargs:
+                ort_providers (List[str]): 使用 ONNX 模型时，使用此参数指定 `onnxruntime` 识别模型运行的设备。未指定则使用默认值（优先使用 GPU）。
 
         Examples:
             使用默认参数：
             >>> rec = Recognizer()
 
             使用指定模型：
-            >>> rec = Recognizer(model_name='densenet_lite_136-fc')
+            >>> rec = Recognizer(model_name='densenet_lite_136-gru')
 
             识别时只考虑数字：
-            >>> rec = Recognizer(model_name='densenet_lite_136-fc', cand_alphabet='0123456789')
+            >>> rec = Recognizer(model_name='densenet_lite_136-gru', cand_alphabet='0123456789')
 
         """
         model_backend = model_backend.lower()
@@ -139,7 +141,9 @@ class Recognizer(object):
         self._candidates = None
         self.set_cand_alphabet(cand_alphabet)
 
-        self._model = self._get_model(context)
+        self._model = self._get_model(
+            context, ort_providers=kwargs.get('ort_providers')
+        )
 
     def _assert_and_prepare_model_files(self, model_fp, root):
         self._model_file_prefix = '{}-{}'.format(
@@ -177,14 +181,16 @@ class Recognizer(object):
                     % ((self._model_name, self._model_backend),)
                 )
             url = AVAILABLE_MODELS.get_url(self._model_name, self._model_backend)
-            get_model_file(url, self._model_dir, download_source=DOWNLOAD_SOURCE)  # download the .zip file and unzip
+            get_model_file(
+                url, self._model_dir, download_source=DOWNLOAD_SOURCE
+            )  # download the .zip file and unzip
             fps = glob(
                 '%s/%s*.%s' % (self._model_dir, self._model_file_prefix, model_ext)
             )
 
         self._model_fp = fps[0]
 
-    def _get_model(self, context):
+    def _get_model(self, context, ort_providers=None):
         logger.info('use model: %s' % self._model_fp)
         if self._model_backend == 'pytorch':
             model = gen_model(self._model_name, self._vocab)
@@ -194,9 +200,10 @@ class Recognizer(object):
         elif self._model_backend == 'onnx':
             import onnxruntime as ort
 
-            model = ort.InferenceSession(
-                self._model_fp, providers=ort.get_available_providers(),
-            )
+            if ort_providers is None:
+                ort_providers = get_default_ort_providers()
+            logger.debug(f'ort providers: {ort_providers}')
+            model = ort.InferenceSession(self._model_fp, providers=ort_providers)
         else:
             raise NotImplementedError(f'{self._model_backend} is not supported yet')
 

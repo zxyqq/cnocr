@@ -27,7 +27,7 @@ def test_crnn():
     width = 280
     img = torch.rand(4, 1, IMG_STANDARD_HEIGHT, width)
 
-    crnn = OcrModel.from_name('densenet_lite_136-fc', ENG_LETTERS)
+    crnn = OcrModel.from_name('densenet_lite_136-gru', ENG_LETTERS)
     res2 = crnn(img, input_lengths=torch.tensor([width]))
 
     net = crnn.encoder

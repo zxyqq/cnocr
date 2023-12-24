@@ -62,7 +62,7 @@ class OcrResult(object):
 class CnOcr(object):
     def __init__(
         self,
-        rec_model_name: str = 'densenet_lite_136-fc',
+        rec_model_name: str = 'densenet_lite_136-gru',
         *,
         det_model_name: str = 'ch_PP-OCRv3_det',
         cand_alphabet: Optional[Union[Collection, str]] = None,
@@ -82,7 +82,7 @@ class CnOcr(object):
         识别模型初始化函数。
 
         Args:
-            rec_model_name (str): 识别模型名称。默认为 `densenet_lite_136-fc`
+            rec_model_name (str): 识别模型名称。默认为 `densenet_lite_136-gru`
             det_model_name (str): 检测模型名称。默认为 `ch_PP-OCRv3_det`
             cand_alphabet (Optional[Union[Collection, str]]): 待识别字符所在的候选集合。默认为 `None`，表示不限定识别字符范围
             context (str): 'cpu', or 'gpu'。表明预测时是使用CPU还是GPU。默认为 `cpu`。
@@ -94,7 +94,7 @@ class CnOcr(object):
                 若训练的自有模型更改了字符集，看通过此参数传入新的字符集文件路径。
             rec_more_configs (Optional[Dict[str, Any]]): 识别模型初始化时传入的其他参数。
             rec_root (Union[str, Path]): 识别模型文件所在的根目录。
-                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.2/densenet_lite_136-fc`。
+                Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.3/densenet_lite_136-gru`。
                 Windows下默认值为 `C:/Users/<username>/AppData/Roaming/cnocr`。
             det_model_fp (Optional[str]): 如果不使用系统自带的检测模型，可以通过此参数直接指定所使用的模型文件（'.ckpt' 文件）
             det_model_backend (str): 'pytorch', or 'onnx'。表明检测时是使用 PyTorch 版本模型，还是使用 ONNX 版本模型。
@@ -110,13 +110,13 @@ class CnOcr(object):
             >>> ocr = CnOcr()
 
             使用指定模型：
-            >>> ocr = CnOcr('densenet_lite_136-fc')
+            >>> ocr = CnOcr('densenet_lite_136-gru')
 
             识别时只考虑数字：
-            >>> ocr = CnOcr(rec_model_name='densenet_lite_136-fc', det_model_name='naive_det', cand_alphabet='0123456789')
+            >>> ocr = CnOcr(rec_model_name='densenet_lite_136-gru', det_model_name='naive_det', cand_alphabet='0123456789')
 
             只检测和识别水平文字：
-            >>> ocr = CnOcr(rec_model_name='densenet_lite_136-fc', det_model_name='db_shufflenet_v2_small', det_more_configs={'rotated_bbox': False})
+            >>> ocr = CnOcr(rec_model_name='densenet_lite_136-gru', det_model_name='db_shufflenet_v2_small', det_more_configs={'rotated_bbox': False})
 
         """
         if kwargs.get('model_name') is not None and rec_model_name is None:

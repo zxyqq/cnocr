@@ -20,11 +20,13 @@
 from pathlib import Path
 from typing import Optional, Union, List, Tuple, Callable
 
+import numpy as np
 import pytorch_lightning as pt
 import torch
 from torch.utils.data import DataLoader, Dataset, Sampler
 
 from .utils import read_charset, read_tsv_file, read_img, resize_img, pad_img_seq
+from .dataset_utils import gen_dataset, collate_fn as hf_collate_fn
 
 
 class OcrDataset(Dataset):
@@ -62,7 +64,7 @@ class OcrDataset(Dataset):
 
 
 class BucketSampler(Sampler):
-    def __init__(self, data_source, bucket_size: Optional[int]=None):
+    def __init__(self, data_source, bucket_size: Optional[int] = None):
         """
 
         Args:
@@ -100,14 +102,6 @@ def collate_fn(img_labels: List[Tuple[str, str]]):
     return imgs, img_lengths, labels_list, label_lengths
 
 
-# class CollateFn(object):
-#     def __init__(self, transform):
-#         self.transform = transform
-#
-#     def __call__(self, img_labels):
-#         return collate_fn(img_labels, self.transform)
-
-
 class OcrDataModule(pt.LightningDataModule):
     def __init__(
         self,
@@ -132,34 +126,53 @@ class OcrDataModule(pt.LightningDataModule):
 
         self.train_transforms = train_transforms
         self.val_transforms = val_transforms
-        # self.train_collate_fn = CollateFn(self.train_transforms)
-        # self.val_collate_fn = CollateFn(self.val_transforms)
+        # self.train = OcrDataset(
+        #     self.index_dir / 'train.tsv',
+        #     self.img_folder,
+        #     transforms=self.train_transforms,
+        #     mode='train',
+        #     )
+        # self.val = OcrDataset(
+        #     self.index_dir / 'dev.tsv',
+        #     self.img_folder,
+        #     transforms=self.val_transforms,
+        #     mode='val',
+        #     )
+        self.train = gen_dataset(
+            self.index_dir / 'train.tsv',
+            img_folder=self.img_folder,
+            transforms=self.train_transforms,
+            mode='train',
+            num_workers=self.num_workers,
+        )
+        self.val = gen_dataset(
+            self.index_dir / 'dev.tsv',
+            img_folder=self.img_folder,
+            transforms=self.val_transforms,
+            mode='val',
+            num_workers=self.num_workers,
+        )
 
     @property
     def vocab_size(self):
         return len(self.vocab)
 
     def setup(self, stage: str):
-        self.train = OcrDataset(
-            self.index_dir / 'train.tsv',
-            self.img_folder,
-            transforms=self.train_transforms,
-            mode='train',
-        )
-        self.val = OcrDataset(
-            self.index_dir / 'dev.tsv',
-            self.img_folder,
-            transforms=self.val_transforms,
-            mode='train',
-        )
+        pass
 
     def train_dataloader(self):
-        sampler = BucketSampler(self.train, bucket_size=self.train_bucket_size)
+        if self.train_bucket_size is not None and self.train_bucket_size > 0:
+            sampler = BucketSampler(self.train, bucket_size=self.train_bucket_size)
+            shuffle = None
+        else:
+            sampler = None
+            shuffle = True
         return DataLoader(
             self.train,
             batch_size=self.batch_size,
             sampler=sampler,
-            collate_fn=collate_fn,
+            shuffle=shuffle,
+            collate_fn=hf_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )
@@ -169,7 +182,7 @@ class OcrDataModule(pt.LightningDataModule):
             self.val,
             batch_size=self.batch_size,
             shuffle=False,
-            collate_fn=collate_fn,
+            collate_fn=hf_collate_fn,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
         )

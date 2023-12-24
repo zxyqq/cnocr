@@ -17,4 +17,28 @@
 # specific language governing permissions and limitations
 # under the License.
 
-__version__ = '2.3'
+import os
+import sys
+import logging
+
+from torch.utils.data import DataLoader
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)))
+
+from cnocr.utils import set_logger
+from cnocr.dataset_utils import gen_dataset, collate_fn
+from cnocr.data_utils.transforms import train_transform, test_transform
+
+logger = set_logger(log_level=logging.INFO)
+
+
+def test_gen_dataset():
+    index_fp = 'data/test/train.tsv'
+    img_folder = 'data/images'
+    dataset = gen_dataset(index_fp, img_folder=img_folder, transforms=train_transform, mode='train')
+
+    dataloader = DataLoader(dataset, collate_fn=collate_fn, batch_size=4)
+    for batch in iter(dataloader):
+        print(batch)
+        break

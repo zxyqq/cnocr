@@ -30,6 +30,7 @@ from multiprocessing import Process
 import subprocess
 
 import click
+import numpy as np
 import torchmetrics
 from torchvision import transforms as T
 import torch
@@ -42,9 +43,9 @@ from cnocr.utils import (
     save_img,
     read_img,
     draw_ocr_results,
+    read_charset,
 )
 from cnocr.data_utils.aug import NormalizeAug
-from cnocr.dataset import OcrDataModule
 from cnocr.trainer import PlTrainer, resave_model, Metrics
 from cnocr import CnOcr, gen_model
 from cnocr.recognizer import Recognizer
@@ -52,7 +53,7 @@ from cnocr.recognizer import Recognizer
 _CONTEXT_SETTINGS = {"help_option_names": ['-h', '--help']}
 logger = set_logger(log_level=logging.INFO)
 
-DEFAULT_MODEL_NAME = 'densenet_lite_136-fc'
+DEFAULT_MODEL_NAME = 'densenet_lite_136-gru'
 LEGAL_MODEL_NAMES = {
     enc_name + '-' + dec_name
     for enc_name in ENCODER_CONFIGS.keys()
@@ -87,6 +88,9 @@ def cli():
     help='识别模型训练使用的json配置文件，参考 `docs/examples/train_config.json`',
 )
 @click.option(
+    "--finetuning", is_flag=True, help="是否为精调模式（精调模式使用更温柔的transform）。默认为 `False`",
+)
+@click.option(
     '-r',
     '--resume-from-checkpoint',
     type=str,
@@ -105,11 +109,19 @@ def train(
     rec_model_name,
     index_dir,
     train_config_fp,
+    finetuning,
     resume_from_checkpoint,
     pretrained_model_fp,
 ):
     """训练识别模型"""
-    from cnocr.data_utils.transforms import train_transform, test_transform
+    from cnocr.dataset import OcrDataModule
+
+    from cnocr.data_utils.transforms import (
+        train_transform,
+        ft_transform,
+        test_transform,
+    )
+
     check_model_name(rec_model_name)
     # train_transform = T.Compose(
     #     [
@@ -135,7 +147,7 @@ def train(
         index_dir=index_dir,
         vocab_fp=train_config['vocab_fp'],
         img_folder=train_config['img_folder'],
-        train_transforms=train_transform,
+        train_transforms=train_transform if not finetuning else ft_transform,
         val_transforms=val_transform,
         batch_size=train_config['batch_size'],
         train_bucket_size=train_config.get('train_bucket_size'),
@@ -239,6 +251,9 @@ def visualize_example(example, fp_prefix):
 @click.option(
     "--draw-font-path", default='./docs/fonts/simfang.ttf', help="画出检测与识别效果图时使用的字体文件",
 )
+@click.option(
+    "--verbose", is_flag=True, default=False, help="是否打印详细日志信息。默认值为 `False`",
+)
 def predict(
     rec_model_name,
     rec_model_backend,
@@ -251,8 +266,14 @@ def predict(
     single_line,
     draw_results_dir,
     draw_font_path,
+    verbose,
 ):
-    """模型预测"""
+    """模型预测""",
+    if verbose:
+        logger = set_logger(log_level=logging.DEBUG)
+    else:
+        logger = set_logger(log_level=logging.INFO)
+
     fp_list = []
     if os.path.isfile(img_file_or_dir):
         fp_list.append(img_file_or_dir)
@@ -381,6 +402,11 @@ def evaluate(
     verbose,
 ):
     """评估模型效果。检测模型使用 `det_model_name='naive_det'` 。"""
+    if verbose:
+        logger = set_logger(log_level=logging.DEBUG)
+    else:
+        logger = set_logger(log_level=logging.INFO)
+
     ocr = CnOcr(
         rec_model_name=rec_model_name,
         rec_model_backend=rec_model_backend,
@@ -392,10 +418,7 @@ def evaluate(
 
     fn_labels_list = read_input_file(eval_index_fp)
 
-    metrics_config = {
-        "complete_match": {},
-        "cer": {}
-    }
+    metrics_config = {"complete_match": {}, "cer": {}}
     metrics = Metrics.from_config(metrics_config)
     cer = torchmetrics.text.CharErrorRate()
     miss_cnt, redundant_cnt = Counter(), Counter()

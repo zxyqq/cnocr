@@ -164,64 +164,34 @@ class AvailableModels(object):
     # name: (epoch, url)
     FREE_MODELS = OrderedDict(
         {
-            ('densenet_lite_114-fc', 'pytorch'): {
-                'epoch': 37,
-                'url': 'densenet_lite_114-fc.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_124-fc', 'pytorch'): {
-                'epoch': 39,
-                'url': 'densenet_lite_124-fc.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_134-fc', 'pytorch'): {
-                'epoch': 34,
-                'url': 'densenet_lite_134-fc.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_136-fc', 'pytorch'): {
-                'epoch': 39,
-                'url': 'densenet_lite_136-fc.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_114-fc', 'onnx'): {
-                'epoch': 37,
-                'url': 'densenet_lite_114-fc-onnx.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_124-fc', 'onnx'): {
-                'epoch': 39,
-                'url': 'densenet_lite_124-fc-onnx.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_134-fc', 'onnx'): {
-                'epoch': 34,
-                'url': 'densenet_lite_134-fc-onnx.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_136-fc', 'onnx'): {
-                'epoch': 39,
-                'url': 'densenet_lite_136-fc-onnx.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_134-gru', 'pytorch'): {
-                'epoch': 2,
-                'url': 'densenet_lite_134-gru.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
-            ('densenet_lite_134-gru', 'onnx'): {
-                'epoch': 2,
-                'url': 'densenet_lite_134-gru-onnx.zip',
-                'vocab_fp': CN_VOCAB_FP,
-            },
             ('densenet_lite_136-gru', 'pytorch'): {
-                'epoch': 2,
+                'epoch': 4,
                 'url': 'densenet_lite_136-gru.zip',
                 'vocab_fp': CN_VOCAB_FP,
             },
             ('densenet_lite_136-gru', 'onnx'): {
-                'epoch': 2,
+                'epoch': 4,
                 'url': 'densenet_lite_136-gru-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('scene-densenet_lite_136-gru', 'pytorch'): {
+                'epoch': 4,
+                'url': 'scene-densenet_lite_136-gru.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('scene-densenet_lite_136-gru', 'onnx'): {
+                'epoch': 4,
+                'url': 'scene-densenet_lite_136-gru-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('doc-densenet_lite_136-gru', 'pytorch'): {
+                'epoch': 4,
+                'url': 'doc-densenet_lite_136-gru.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('doc-densenet_lite_136-gru', 'onnx'): {
+                'epoch': 4,
+                'url': 'doc-densenet_lite_136-gru-onnx.zip',
                 'vocab_fp': CN_VOCAB_FP,
             },
             ('number-densenet_lite_136-fc', 'onnx'): {
@@ -239,6 +209,66 @@ class AvailableModels(object):
 
     PAID_MODELS = OrderedDict(
         {
+            ('densenet_lite_246-gru_base', 'pytorch'): {
+                'epoch': 5,
+                'url': 'densenet_lite_246-gru_base.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_246-gru_base', 'onnx'): {
+                'epoch': 5,
+                'url': 'densenet_lite_246-gru_base-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('scene-densenet_lite_246-gru_base', 'pytorch'): {
+                'epoch': 4,
+                'url': 'scene-densenet_lite_246-gru_base.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('scene-densenet_lite_246-gru_base', 'onnx'): {
+                'epoch': 4,
+                'url': 'scene-densenet_lite_246-gru_base-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('doc-densenet_lite_246-gru_base', 'pytorch'): {
+                'epoch': 4,
+                'url': 'doc-densenet_lite_246-gru_base.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('doc-densenet_lite_246-gru_base', 'onnx'): {
+                'epoch': 4,
+                'url': 'doc-densenet_lite_246-gru_base-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_666-gru_large', 'pytorch'): {
+                'epoch': 4,
+                'url': 'densenet_lite_666-gru_large.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('densenet_lite_666-gru_large', 'onnx'): {
+                'epoch': 4,
+                'url': 'densenet_lite_666-gru_large-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('scene-densenet_lite_666-gru_large', 'pytorch'): {
+                'epoch': 5,
+                'url': 'scene-densenet_lite_666-gru_large.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('scene-densenet_lite_666-gru_large', 'onnx'): {
+                'epoch': 5,
+                'url': 'scene-densenet_lite_666-gru_large-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('doc-densenet_lite_666-gru_large', 'pytorch'): {
+                'epoch': 5,
+                'url': 'doc-densenet_lite_666-gru_large.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
+            ('doc-densenet_lite_666-gru_large', 'onnx'): {
+                'epoch': 5,
+                'url': 'doc-densenet_lite_666-gru_large-onnx.zip',
+                'vocab_fp': CN_VOCAB_FP,
+            },
             ('number-densenet_lite_136-gru', 'pytorch'): {
                 'epoch': 28,
                 'url': 'number-densenet_lite_136-gru.zip',
@@ -289,7 +319,7 @@ class AvailableModels(object):
             return self.CNOCR_SPACE
         elif (model_name, model_backend) in self.OUTER_MODELS:
             return self.OUTER_MODELS[(model_name, model_backend)]['space']
-        return None
+        return self.CNOCR_SPACE
 
     def get_vocab_fp(
         self, model_name: str, model_backend: str
@@ -300,9 +330,10 @@ class AvailableModels(object):
             return self.OUTER_MODELS[(model_name, model_backend)]['vocab_fp']
         else:
             logger.warning(
-                'no vocab_fp is found for model %s' % ((model_name, model_backend),)
+                'no predefined vocab_fp is found for model %s, use the default %s'
+                % ((model_name, model_backend), CN_VOCAB_FP)
             )
-            return None
+            return CN_VOCAB_FP
 
     def get_epoch(self, model_name, model_backend) -> Optional[int]:
         if (model_name, model_backend) in self.CNOCR_MODELS:

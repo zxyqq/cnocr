@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2022, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -27,6 +27,8 @@ import logging
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+
+from ..utils import get_default_ort_providers
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +145,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def create_predictor(model_dir, mode, logger):
+def create_predictor(model_dir, mode, ort_providers=None):
     import onnxruntime as ort
 
     # if mode == "det":
@@ -165,7 +167,10 @@ def create_predictor(model_dir, mode, logger):
     if not os.path.exists(model_file_path):
         raise ValueError("not find model file path {}".format(
             model_file_path))
-    sess = ort.InferenceSession(model_file_path, providers=['AzureExecutionProvider', 'CPUExecutionProvider'])
+    if ort_providers is not None:
+        ort_providers = get_default_ort_providers()
+    logger.debug(f'ort providers: {ort_providers}')
+    sess = ort.InferenceSession(model_file_path, providers=ort_providers)
     return sess, sess.get_inputs()[0], None, None
 
 

@@ -7,18 +7,19 @@
 [命令行工具](command.md) 介绍了训练命令。使用命令 **`cnocr train`**  训练文本检测模型，以下是使用说明：
 
 ```bash
-> cnocr train -h
+$ cnocr train -h
 Usage: cnocr train [OPTIONS]
 
   训练识别模型
 
 Options:
-  -m, --rec-model-name TEXT       识别模型名称。默认值为 `densenet_lite_136-fc`
+  -m, --rec-model-name TEXT       识别模型名称。默认值为 `densenet_lite_136-gru`
   -i, --index-dir TEXT            索引文件所在的文件夹，会读取文件夹中的 train.tsv 和 dev.tsv 文件
                                   [required]
   --train-config-fp TEXT          识别模型训练使用的json配置文件，参考
                                   `docs/examples/train_config.json`
                                   [required]
+  --finetuning                    是否为精调模式（精调模式使用更温柔的transform）。默认为 `False`
   -r, --resume-from-checkpoint TEXT
                                   恢复此前中断的训练状态，继续训练识别模型。所以文件中应该包含训练状态。默认为
                                   `None`
@@ -31,7 +32,7 @@ Options:
 例如可以使用以下命令进行训练：
 
 ```bash
-> cnocr train -m densenet_lite_136-fc --index-dir data/test --train-config-fp docs/examples/train_config.json
+$ cnocr train -m densenet_lite_136-gru --index-dir data/test --train-config-fp docs/examples/train_config.json
 ```
 
 训练数据的格式见文件夹 [data/test](https://github.com/breezedeus/cnocr/blob/master/data/test) 中的 [train.tsv](https://github.com/breezedeus/cnocr/blob/master/data/test/train.tsv) 和 [dev.tsv](https://github.com/breezedeus/cnocr/blob/master/data/test/dev.tsv) 文件。

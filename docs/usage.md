@@ -3,9 +3,9 @@
 ## 模型文件自动下载
 
 首次使用 **CnOCR** 时，系统会**自动下载** zip 格式的识别模型压缩文件，并存于 `~/.cnocr`目录（Windows下默认路径为 `C:\Users\<username>\AppData\Roaming\cnocr`）。
-下载后的zip文件代码会自动对其解压，然后把解压后的模型相关目录放于`~/.cnocr/2.2`目录中。
+下载后的zip文件代码会自动对其解压，然后把解压后的模型相关目录放于`~/.cnocr/2.3`目录中。
 
-如果系统无法自动成功下载zip文件，则需要手动从 **[cnstd-cnocr-models](https://huggingface.co/breezedeus/cnstd-cnocr-models/tree/main)** 下载此zip文件并把它放于 `~/.cnocr/2.2`目录。如果下载太慢，也可以从 [百度云盘](https://pan.baidu.com/s/1wvIjbjw95akE-h_o1HQd9w?pwd=nocr) 下载， 提取码为 ` nocr`。
+如果系统无法自动成功下载zip文件，则需要手动从 **[cnstd-cnocr-models](https://huggingface.co/breezedeus/cnstd-cnocr-models/tree/main)** 下载此zip文件并把它放于 `~/.cnocr/2.3`目录。如果下载太慢，也可以从 [百度云盘](https://pan.baidu.com/s/1RhLBf8DcLnLuGLPrp89hUg?pwd=nocr) 下载， 提取码为 `nocr`。
 
 检测模型的下载请参考 **[CnSTD 文档](https://github.com/breezedeus/CnSTD/tree/master#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95)**。
 
@@ -21,7 +21,7 @@
 class CnOcr(object):
     def __init__(
         self,
-        rec_model_name: str = 'densenet_lite_136-fc',
+        rec_model_name: str = 'densenet_lite_136-gru',
         *,
         det_model_name: str = 'ch_PP-OCRv3_det',
         cand_alphabet: Optional[Union[Collection, str]] = None,
@@ -41,7 +41,7 @@ class CnOcr(object):
 
 其中的几个参数含义如下：
 
-* `rec_model_name`: 识别模型名称。默认为 `densenet_lite_136-fc`。更多可选模型见 [可直接使用的模型](models.md) 。
+* `rec_model_name`: 识别模型名称。默认为 `densenet_lite_136-gru`。更多可选模型见 [可直接使用的模型](models.md) 。
 
 * `det_model_name`: 检测模型名称。默认为 `ch_PP-OCRv3_det`。更多可选模型见 [可直接使用的模型](models.md) 。
 
@@ -58,7 +58,7 @@ class CnOcr(object):
 * `rec_more_configs`：`dict`，识别模型初始化时传入的其他参数。具体可参考 [Recognizer](cnocr/recognizer.md) 和 [PPRecognizer](cnocr/pp_recognizer.md) 中的 `__init__` 接口。
 	
 * `rec_root`:  识别模型文件所在的根目录。
-	* Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.2/densenet_lite_136-fc`。
+	* Linux/Mac下默认值为 `~/.cnocr`，表示模型文件所处文件夹类似 `~/.cnocr/2.3/densenet_lite_136-gru`。
 	* Windows下默认值为 `C:\Users\<username>\AppData\Roaming\cnocr`。
   
 * `det_model_fp`:  如果不使用系统自带的检测模型，可以通过此参数直接指定所使用的模型文件（`.ckpt` 或 `.onnx` 文件）。

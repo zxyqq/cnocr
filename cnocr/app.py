@@ -134,7 +134,7 @@ def main():
 
     all_models = list(REC_AVAILABLE_MODELS.all_models())
     all_models.sort()
-    idx = all_models.index(('densenet_lite_136-fc', 'onnx'))
+    idx = all_models.index(('densenet_lite_136-gru', 'onnx'))
     rec_model_name = st.sidebar.selectbox('选择识别模型', all_models, index=idx)
 
     st.sidebar.subheader('检测参数')
