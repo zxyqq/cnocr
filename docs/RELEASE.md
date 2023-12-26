@@ -1,5 +1,11 @@
 # Release Notes
 
+### Update 2023.12.26：发布 V2.3.0.1
+
+主要变更：
+
+* 修复使用 ppocr ONNX 模型时传入的 providers 参数的逻辑问题。
+
 ### Update 2023.12.24：发布 V2.3
 
 主要变更：
