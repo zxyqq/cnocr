@@ -167,7 +167,7 @@ def create_predictor(model_dir, mode, ort_providers=None):
     if not os.path.exists(model_file_path):
         raise ValueError("not find model file path {}".format(
             model_file_path))
-    if ort_providers is not None:
+    if ort_providers is None:
         ort_providers = get_default_ort_providers()
     logger.debug(f'ort providers: {ort_providers}')
     sess = ort.InferenceSession(model_file_path, providers=ort_providers)
