@@ -277,6 +277,17 @@ More instructions can be found in the [installation documentation](https://cnocr
 > If you have never installed `PyTorch`, `OpenCV` python packages on your computer, you may encounter problems with the first installation, but they are usually common problems that can be solved by Baidu/Google.
 
 
+### Docker Image
+
+You can directly pull the image with CnOCR installed from Docker Hub: [Docker Hub](https://hub.docker.com/r/breezedeus/cnocr/tags) . 
+
+```bash
+$ docker pull breezedeus/cnocr:latest
+```
+
+More instructions can be found in the [installation documentation](https://cnocr.readthedocs.io/zh/latest/install/) (in Chinese).
+
+
 ## Pre-trained Models
 
 ### Pre-trained Detection Models
