@@ -44,7 +44,7 @@ $ pip install cnocr[ort-cpu] -i https://mirrors.aliyun.com/pypi/simple
 CnOCR 自 **V2.2.1** 开始加入了基于 FastAPI 的HTTP服务。开启服务需要安装几个额外的包，可以使用以下命令安装：
 
 ```bash
-pip install cnocr[serve]
+$ pip install cnocr[serve] onnxruntime
 ```
 
 
@@ -52,7 +52,7 @@ pip install cnocr[serve]
 安装完成后，可以通过以下命令启动HTTP服务（**`-p`** 后面的数字是**端口**，可以根据需要自行调整）：
 
 ```bash
-cnocr serve -p 8501
+$ cnocr serve -p 8501
 ```
 
 
@@ -70,7 +70,7 @@ cnocr serve -p 8501
 可以从 [Docker Hub](https://hub.docker.com/r/breezedeus/cnocr/tags) 直接拉取已安装好 CnOCR 的镜像使用。
 
 ```bash
-> docker pull breezedeus/cnocr:v2.2.2
+$ docker pull breezedeus/cnocr:latest
 ```
 
 
@@ -78,7 +78,7 @@ cnocr serve -p 8501
 利用以下命令启动容器：
 
 ```bash
-> docker run -it -p 8501:8501 breezedeus/cnocr:v2.2.2 bash
+$ docker run -it -p 8501:8501 breezedeus/cnocr:latest bash
 ```
 
 
@@ -86,14 +86,31 @@ cnocr serve -p 8501
 容器启动后会**自动启动HTTP服务**，在容器外可以直接调用相应的服务：
 
 ```bash
-> curl -F image=@docs/examples/huochepiao.jpeg http://0.0.0.0:8501/ocr
+$ curl -F image=@docs/examples/huochepiao.jpeg http://0.0.0.0:8501/ocr
+```
+
+**注意** ⚠️ ：有些情况下容器启动后不会自动启动HTTP服务（原因未知），需要进入容器手动启动。
+可以通过以下命令进入容器：
+
+```bash
+$ docker exec -it <container_id> bash
+```
+
+使用以下命令查看服务是否正常启动：
+
+```bash
+$ ps afx | grep uvicorn
+```
+
+如果返回结果中存在 `/usr/local/bin/python /usr/local/bin/uvicorn serve:app --host 0.0.0.0 --port 8501` 这种行，则说明服务已启动；
+否则说明服务未自动启动。此时可以通过以下命令手动启动服务：
+
+```bash
+$ nohup cnocr serve -H 0.0.0.0 -p 8501 &
 ```
 
 
-
 更详细的调用方式见 [HTTP服务](index.md) 。
-
-
 
 
 
