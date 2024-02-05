@@ -67,12 +67,17 @@ $ cnocr serve -p 8501
 
 ## Docker Image
 
-可以从 [Docker Hub](https://hub.docker.com/r/breezedeus/cnocr/tags) 直接拉取已安装好 CnOCR 的镜像使用。
+可以从 [Docker Hub](https://hub.docker.com/u/breezedeus) 直接拉取已安装好 CnOCR 的镜像使用。
 
 ```bash
 $ docker pull breezedeus/cnocr:latest
 ```
 
+**注意** ⚠️ ：如果你的系统架构是 ARM（如 Mac with Apple Silicon），需要拉取 ARM 版本的镜像：
+
+```bash
+$ docker pull breezedeus/cnocr-arm64:latest
+```
 
 
 利用以下命令启动容器：

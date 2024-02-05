@@ -1,4 +1,5 @@
-FROM python:3.9
+# FROM --platform=linux/arm64 python:3.9
+FROM --platform=linux/amd64 python:3.9
 ENV TZ=Asia/Shanghai
 ARG DEBIAN_FRONTEND=noninteractive
 
