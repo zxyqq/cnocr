@@ -48,7 +48,7 @@ $ pip install cnocr[ort-cpu]
 
 ### Docker Image
 
-可以从 [Docker Hub](https://hub.docker.com/r/breezedeus/cnocr/tags) 直接拉取已安装好 CnOCR 的镜像使用。
+可以从 [Docker Hub](https://hub.docker.com/u/breezedeus) 直接拉取已安装好 CnOCR 的镜像使用。
 
 ```bash
 $ docker pull breezedeus/cnocr:latest

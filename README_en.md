@@ -279,7 +279,7 @@ More instructions can be found in the [installation documentation](https://cnocr
 
 ### Docker Image
 
-You can directly pull the image with CnOCR installed from Docker Hub: [Docker Hub](https://hub.docker.com/r/breezedeus/cnocr/tags) . 
+You can directly pull the image with CnOCR installed from Docker Hub: [Docker Hub](https://hub.docker.com/u/breezedeus) . 
 
 ```bash
 $ docker pull breezedeus/cnocr:latest
