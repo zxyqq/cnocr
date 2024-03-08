@@ -4,11 +4,15 @@ ENCODER_NAME = densenet_lite_136
 DECODER_NAME = fc
 MODEL_NAME = $(ENCODER_NAME)-$(DECODER_NAME)
 
-INDEX_DIR = data/output_normal
+INDEX_DIR = /data/jinlong/ocr_data
 TRAIN_CONFIG_FP = docs/examples/train_config_gpu.json
 
 train:
-	cnocr train -m $(MODEL_NAME) --index-dir $(INDEX_DIR) --train-config-fp $(TRAIN_CONFIG_FP)
+	CUDA_VISIBLE_DEVICES=1 cnocr train -m $(MODEL_NAME) --index-dir $(INDEX_DIR) --train-config-fp $(TRAIN_CONFIG_FP)
+
+finetune:
+	CUDA_VISIBLE_DEVICES=0 cnocr train --finetuning -m densenet_lite_136-gru --index-dir /data/jinlong/ocr_data/finetuning-general --train-config-fp docs/examples/train_config_finetune.json \
+	-p runs/CnOCR-Rec/ga6ubc1s/checkpoints/cnocr-v2.2-densenet_lite_136-gru-epoch=029-val-complete_match-epoch=0.7936-model.ckpt
 
 # 训练模型
 train-number-pure:
