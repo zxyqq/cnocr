@@ -2,6 +2,7 @@
   <img src="./docs/figs/cnocr-logo.jpg" width="250px"/>
   <div>&nbsp;</div>
 
+[![Discord](https://img.shields.io/discord/1200765964434821260?label=Discord)](https://discord.gg/tGuFEybd)
 [![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://cnocr.readthedocs.io/zh/latest/)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
@@ -332,14 +333,14 @@ For more details, see: [Available Models](https://cnocr.readthedocs.io/zh/latest
 | **densenet_lite_136-gru** 🆕                                                                                          | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
 | **scene-densenet_lite_136-gru** 🆕                                                                                    | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
 | **doc-densenet_lite_136-gru** 🆕                                                                                      | √               | √         | cnocr        | 12 M         | Simplified Chinese, English, Numbers | X                    |
-| **densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon)       | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
-| **scene-densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon) | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
-| **doc-densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon)   | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
+| **densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only)       | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
+| **scene-densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only) | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
+| **doc-densenet_lite_246-gru_base** 🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only)   | √               | √         | cnocr        | 25 M         | Simplified Chinese, English, Numbers | X                    |
 | **densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                             | √              | √         | cnocr        | 82 M         | Simplified Chinese, English, Numbers | X                    |
 | **scene-densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                       | √              | √         | cnocr        | 82 M         | Simplified Chinese, English, Numbers | X                    |
 | **doc-densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                         | √              | √         | cnocr        | 82 M         | Simplified Chinese, English, Numbers | X                    |
 | **number-densenet_lite_136-fc** 🆕                                                                                    | √               | √  | cnocr        | 2.7 M        | **Pure Numeric** (contains only the ten digits `0~9`) | X                    |
-| **number-densenet_lite_136-gru**  🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only, will be free soon)                       | √               | √         | cnocr        | 5.5 M       | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
+| **number-densenet_lite_136-gru**  🆕 <br /> ([Planet Members](https://t.zsxq.com/FEYZRJQ) Only)                       | √               | √         | cnocr        | 5.5 M       | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
 | **number-densenet_lite_666-gru_large** 🆕 <br /> ([Purchase Link](https://ocr.lemonsqueezy.com))                      | √               | √         | cnocr        | 56 M      | **Pure Numeric** (contains only the ten digits `0~9`)  | X                    |
 | **en_PP-OCRv3**                                                                                                       | X               | √         | ppocr        | 8.5 M        | **English**、Numbers | √                    |
 | **en_number_mobile_v2.0**                                                                                             | X               | √         | ppocr        | 1.8 M        | **English**、Numbers | √                    |
