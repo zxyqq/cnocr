@@ -3,6 +3,7 @@
 </figure>
 
 # CnOCR
+[![Discord](https://img.shields.io/discord/1200765964434821260?label=Discord)](https://discord.gg/tGuFEybd)
 [![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/cnocr)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh%2Flatest%2F&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh%2Flatest%2F)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
