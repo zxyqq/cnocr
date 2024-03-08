@@ -2,7 +2,7 @@
   <img src="./docs/figs/cnocr-logo.jpg" width="250px"/>
   <div>&nbsp;</div>
 
-[![Discord](https://img.shields.io/discord/1200765964434821260?label=Discord)](https://discord.gg/tGuFEybd)
+[![Discord](https://img.shields.io/discord/1200765964434821260?label=Discord)](https://discord.gg/drT8H85Y)
 [![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://cnocr.readthedocs.io/zh/latest/)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
