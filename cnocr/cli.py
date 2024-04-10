@@ -225,6 +225,9 @@ def visualize_example(example, fp_prefix):
     help='检测模型类型。默认值为 `onnx`',
 )
 @click.option(
+    '--det-resized-shape', type=int, default=768, help='检测模型输入图像尺寸。默认值为 768',
+)
+@click.option(
     '-p',
     '--pretrained-model-fp',
     type=str,
@@ -252,6 +255,9 @@ def visualize_example(example, fp_prefix):
     "--draw-font-path", default='./docs/fonts/simfang.ttf', help="画出检测与识别效果图时使用的字体文件",
 )
 @click.option(
+    "--show-details", is_flag=True, default=False, help="是否打印识别结果详情。默认值为 `False`",
+)
+@click.option(
     "--verbose", is_flag=True, default=False, help="是否打印详细日志信息。默认值为 `False`",
 )
 def predict(
@@ -260,12 +266,14 @@ def predict(
     rec_vocab_fp,
     det_model_name,
     det_model_backend,
+    det_resized_shape,
     pretrained_model_fp,
     context,
     img_file_or_dir,
     single_line,
     draw_results_dir,
     draw_font_path,
+    show_details,
     verbose,
 ):
     """模型预测""",
@@ -298,18 +306,24 @@ def predict(
         # det_more_configs={'rotated_bbox': False},
     )
     ocr_func = ocr.ocr_for_single_line if single_line else ocr.ocr
+    ocr_kwargs = {}
+    if not single_line:
+        ocr_kwargs['resized_shape'] = det_resized_shape
 
     for fp in fp_list:
         start_time = time.time()
         logger.info('\n' + '=' * 10 + fp + '=' * 10)
         res = ocr_func(
             fp,
-            # resized_shape=2280,
+            **ocr_kwargs,
             # box_score_thresh=0.14,
             # min_box_size=20,
         )
         logger.info('time cost: %f' % (time.time() - start_time))
-        logger.info(res)
+        if show_details:
+            logger.info(res)
+        else:
+            logger.info('\n'.join([line_res['text'] for line_res in res]))
         if single_line:
             res = [res]
 
@@ -328,10 +342,6 @@ def predict(
                 draw_ocr_results(
                     fp, res, out_draw_fp=out_draw_fp, font_path=draw_font_path
                 )
-
-        # for line_res in res:
-        #     preds, prob = line_res['text'], line_res['score']
-        #     logger.info('\npred: %s, with score %f' % (''.join(preds), prob))
 
 
 @cli.command('evaluate')
