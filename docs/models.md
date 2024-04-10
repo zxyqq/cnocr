@@ -45,7 +45,7 @@ CnOCR **V2.3** 重新训练了所有的模型，模型较 V2.2.* 精度更高。
 
 同时，加入了两个参数量更多的模型系列：
 
-  * `*-densenet_lite_246-gru_base`：优先供 **知识星球** [**CnOCR/CnSTD私享群**](https://t.zsxq.com/FEYZRJQ) 会员使用，2024 年 2 月都会免费开源。
+  * `*-densenet_lite_246-gru_base`：优先供 **知识星球** [**CnOCR/CnSTD私享群**](https://t.zsxq.com/FEYZRJQ) 会员使用，后续会免费开源。
   * `*-densenet_lite_666-gru_large`：**Pro 模型**，购买后可使用。购买链接见文档：
 
 CnOCR 自己训练的模型都支持**常见简体中文、英文和数字**的识别，大家也可以基于这些模型在自己的领域数据上继续精调模型。模型列表如下：
