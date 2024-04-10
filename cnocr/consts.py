@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 # 模型版本只对应到第二层，第三层的改动表示模型兼容。
 # 如: __version__ = '2.2.*'，对应的 MODEL_VERSION 都是 '2.2'
 MODEL_VERSION = '.'.join(__version__.split('.', maxsplit=2)[:2])
-DOWNLOAD_SOURCE = os.environ.get('CNOCR_DOWNLOAD_SOURCE', 'CN')
+DOWNLOAD_SOURCE = os.environ.get('CNOCR_DOWNLOAD_SOURCE', 'HF')
 
 IMG_STANDARD_HEIGHT = 32
 CN_VOCAB_FP = Path(__file__).parent.absolute() / 'label_cn.txt'
