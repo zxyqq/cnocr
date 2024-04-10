@@ -314,7 +314,7 @@ Refer to [CnSTD](https://github.com/breezedeus/CnSTD?tab=readme-ov-file#%E5%B7%B
 
 Compared to the CnOCR V2.2.* versions, most models in **V2.3** have been retrained and fine-tuned, offering higher accuracy than the older versions. Additionally, two series of models with larger parameter volumes have been added:
 
-  * `*-densenet_lite_246-gru_base`: Currently available for **Knowledge Planet** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ) members, it will be open-sourced for free in February 2024.
+  * `*-densenet_lite_246-gru_base`: Currently available for **Knowledge Planet** [**CnOCR/CnSTD Private Group**](https://t.zsxq.com/FEYZRJQ) members, it will be open-sourced afterward.
   * `*-densenet_lite_666-gru_large`: **Pro models**, available for use after purchase. The purchase link: [https://ocr.lemonsqueezy.com](https://ocr.lemonsqueezy.com).
 
 Models in **V2.3** are categorized into the following types based on usage scenarios:
