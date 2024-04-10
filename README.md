@@ -391,7 +391,7 @@ print(ocr_out)
 
 相比于 CnOCR V2.2.* 版本，**V2.3** 中的大部分模型都经过了重新训练和精调，精度比旧版模型更高。同时，加入了两个参数量更多的模型系列：
 
-  * `*-densenet_lite_246-gru_base`：优先供 **知识星球** [**CnOCR/CnSTD私享群**](https://t.zsxq.com/FEYZRJQ) 会员使用，2024 年 2 月都会免费开源。
+  * `*-densenet_lite_246-gru_base`：优先供 **知识星球** [**CnOCR/CnSTD私享群**](https://t.zsxq.com/FEYZRJQ) 会员使用，后续会免费开源。
   * `*-densenet_lite_666-gru_large`：**Pro 模型**，购买后可使用。购买链接见文档：
 
 **V2.3** 中的模型按使用场景可以分为以下几大类：
