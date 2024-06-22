@@ -158,7 +158,7 @@ def main():
 
     st.markdown('# 开源Python OCR工具 ' '[CnOCR](https://github.com/breezedeus/cnocr)')
     st.markdown('> 详细说明参见：[CnOCR 文档](https://cnocr.readthedocs.io/) ；'
-                '欢迎加入 [交流群](https://cnocr.readthedocs.io/zh/latest/contact/) ；'
+                '欢迎加入 [交流群](https://www.breezedeus.com/article/join-group) ；'
                 '作者：[breezedeus](https://github.com/breezedeus) 。')
     st.markdown('')
     st.subheader('选择待检测图片')

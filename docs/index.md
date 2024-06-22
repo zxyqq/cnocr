@@ -5,7 +5,7 @@
 # CnOCR
 [![Discord](https://img.shields.io/discord/1200765964434821260?label=Discord)](https://discord.gg/GgD87WM8Tf)
 [![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pepy.tech/project/cnocr)
-[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh%2Flatest%2F&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh%2Flatest%2F)
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh-cn%2Fstable%2F&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fcnocr.readthedocs.io%2Fzh-cn%2Fstable%2F)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
 [![PyPI version](https://badge.fury.io/py/cnocr.svg)](https://badge.fury.io/py/cnocr)
 [![forks](https://img.shields.io/github/forks/breezedeus/cnocr)](https://github.com/breezedeus/cnocr)
