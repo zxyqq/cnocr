@@ -3,10 +3,10 @@
   <div>&nbsp;</div>
 
 [![Discord](https://img.shields.io/discord/1200765964434821260?label=Discord)](https://discord.gg/GgD87WM8Tf)
-[![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://cnocr.readthedocs.io/zh/latest/)
+[![Downloads](https://static.pepy.tech/personalized-badge/cnocr?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://cnocr.readthedocs.io/zh-cn/stable/)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR&label=Visitors&countColor=%23f5c791&style=flat&labelStyle=none)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Fbreezedeus%2FCnOCR)
 [![license](https://img.shields.io/github/license/breezedeus/cnocr)](./LICENSE)
-[![Docs](https://readthedocs.org/projects/cnocr/badge/?version=latest)](https://cnocr.readthedocs.io/zh/latest/?badge=latest)
+[![Docs](https://readthedocs.org/projects/cnocr/badge/?version=latest)](https://cnocr.readthedocs.io/zh-cn/stable/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/cnocr.svg)](https://badge.fury.io/py/cnocr)
 [![forks](https://img.shields.io/github/forks/breezedeus/cnocr)](https://github.com/breezedeus/cnocr)
 [![stars](https://img.shields.io/github/stars/breezedeus/cnocr)](https://github.com/breezedeus/cnocr)
@@ -14,12 +14,12 @@
 ![last-commit](https://img.shields.io/github/last-commit/breezedeus/cnocr)
 [![Twitter](https://img.shields.io/twitter/url?url=https%3A%2F%2Ftwitter.com%2Fbreezedeus)](https://twitter.com/breezedeus)
 
-[📖 Doc](https://cnocr.readthedocs.io/zh/latest/) |
-[🛠️ Install](https://cnocr.readthedocs.io/zh/latest/install/) |
-[🧳 Models](https://cnocr.readthedocs.io/zh/latest/models/) |
-[🕹 Training](https://cnocr.readthedocs.io/zh/latest/train/) |
+[📖 Doc](https://cnocr.readthedocs.io/zh-cn/stable/) |
+[🛠️ Install](https://cnocr.readthedocs.io/zh-cn/stable/install/) |
+[🧳 Models](https://cnocr.readthedocs.io/zh-cn/stable/models/) |
+[🕹 Training](https://cnocr.readthedocs.io/zh-cn/stable/train/) |
 [🛀🏻 Online Demo](https://share.streamlit.io/breezedeus/cnstd/st-deploy/cnstd/app.py) |
-[💬 Contact](https://cnocr.readthedocs.io/zh/latest/contact/)
+[💬 Contact](https://www.breezedeus.com/article/join-group)
 
 </div>
 
@@ -55,7 +55,7 @@ Major Changes:
 
 For more details, please refer to: [CnOCR V2.3 New Release: Better, More, and Larger Models | Breezedeus.com](https://www.breezedeus.com/article/cnocr-v2.3-better-more).
 
-[**CnOCR**](https://github.com/breezedeus/cnocr)  is an **Optical Character Recognition (OCR)** toolkit for **Python 3**. It supports recognition of common characters in **English and numbers**, **Simplified Chinese**, **Traditional Chinese** (some models), and **vertical text** recognition. It comes with [**20+ well-trained models**](https://cnocr.readthedocs.io/zh/latest/models/) for different application scenarios and can be used directly after installation. Also, CnOCR provides simple training [commands](https://cnocr.readthedocs.io/zh/latest/train/) for users to train their own models. Welcome to join the WeChat contact group.
+[**CnOCR**](https://github.com/breezedeus/cnocr)  is an **Optical Character Recognition (OCR)** toolkit for **Python 3**. It supports recognition of common characters in **English and numbers**, **Simplified Chinese**, **Traditional Chinese** (some models), and **vertical text** recognition. It comes with [**20+ well-trained models**](https://cnocr.readthedocs.io/zh-cn/stable/models/) for different application scenarios and can be used directly after installation. Also, CnOCR provides simple training [commands](https://cnocr.readthedocs.io/zh-cn/stable/train/) for users to train their own models. Welcome to join the WeChat contact group.
 
 <div align="center">
   <img src="https://huggingface.co/datasets/breezedeus/cnocr-wx-qr-code/resolve/main/wx-qr-code.JPG" alt="WeChat Group" width="300px"/>
@@ -271,7 +271,7 @@ $ pip install cnocr -i https://mirrors.aliyun.com/pypi/simple
 >
 > Please use **Python3** (3.6 and later should work), I haven't tested if it's okay under Python2.
 
-More instructions can be found in the [installation documentation](https://cnocr.readthedocs.io/zh/latest/install/) (in Chinese).
+More instructions can be found in the [installation documentation](https://cnocr.readthedocs.io/zh-cn/stable/install/) (in Chinese).
 
 > **Warning** 
 >
@@ -286,7 +286,7 @@ You can directly pull the image with CnOCR installed from Docker Hub: [Docker Hu
 $ docker pull breezedeus/cnocr:latest
 ```
 
-More instructions can be found in the [installation documentation](https://cnocr.readthedocs.io/zh/latest/install/) (in Chinese).
+More instructions can be found in the [installation documentation](https://cnocr.readthedocs.io/zh-cn/stable/install/) (in Chinese).
 
 
 ## Pre-trained Models
@@ -326,7 +326,7 @@ Models in **V2.3** are categorized into the following types based on usage scena
 
 > Note ⚠️: The above descriptions are for reference only. It is recommended to choose models based on actual performance.
 
-For more details, see: [Available Models](https://cnocr.readthedocs.io/zh/latest/models/).
+For more details, see: [Available Models](https://cnocr.readthedocs.io/zh-cn/stable/models/).
 
 | `rec_model_name`                                                                                                      | PyTorch Version | ONNX Version | Model original source | Model File Size | Supported Language                       | Whether to support vertical text recognition |
 |-----------------------------------------------------------------------------------------------------------------------|-----------------| --------- | ------------ | ------------ | ------------------------ | -------------------- |
@@ -369,7 +369,7 @@ For more details, see: [Available Models](https://cnocr.readthedocs.io/zh/latest
 
 ## A cup of coffee for the author
 
-It is not easy to maintain and evolve the project, so if it is helpful to you, please consider [offering the author a cup of coffee 🥤](https://cnocr.readthedocs.io/zh/latest/buymeacoffee/).
+It is not easy to maintain and evolve the project, so if it is helpful to you, please consider [offering the author a cup of coffee 🥤](https://cnocr.readthedocs.io/zh-cn/stable/buymeacoffee/).
 
 ---
 
