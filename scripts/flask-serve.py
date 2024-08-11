@@ -22,6 +22,7 @@
 # 启动服务： FLASK_APP=scripts/flask-serve.py flask run
 # 调用服务： curl -F image=@docs/examples/huochepiao.jpeg http://127.0.0.1:8555/ocr
 
+import base64
 import io
 from copy import deepcopy
 from typing import List, Dict, Any
@@ -29,6 +30,7 @@ from typing import List, Dict, Any
 from pydantic import BaseModel
 from PIL import Image
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from cnocr import CnOcr
 from cnocr.utils import set_logger
@@ -37,6 +39,7 @@ logger = set_logger(log_level='DEBUG')
 
 OCR_MODEL = CnOcr()
 app = Flask(__name__)
+CORS(app)
 
 
 class OcrResponse(BaseModel):
@@ -65,6 +68,36 @@ def ocr() -> Dict[str, Any]:
             _one.pop('cropped_img')
 
     return jsonify(OcrResponse(results=res).dict())
+
+@app.route('/ocrstr', methods=['POST'])
+def ocrstr() -> Dict[str, Any]:
+    imagebase64=request.form.get('imagebase64')
+    if imagebase64.startswith('data:image/'):
+        imagebase64 = imagebase64.split(',')[1]
+    img_bytes = base64.b64decode(imagebase64)
+    image = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+    res = OCR_MODEL.ocr(image)
+    for _one in res:
+        _one['position'] = _one['position'].tolist()
+        if 'cropped_img' in _one:
+            _one.pop('cropped_img')
+    return jsonify(OcrResponse(results=res).dict())
+
+@app.route('/ocrjson', methods=['POST'])
+def ocrjson() -> Dict[str, Any]:
+    imagebase64=request.json.get('imagebase64')
+    if imagebase64.startswith('data:image/'):
+        imagebase64 = imagebase64.split(',')[1]
+    img_bytes = base64.b64decode(imagebase64)
+    image = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+    res = OCR_MODEL.ocr(image)
+    for _one in res:
+        _one['position'] = _one['position'].tolist()
+        if 'cropped_img' in _one:
+            _one.pop('cropped_img')
+    return jsonify(OcrResponse(results=res).dict())
+
+
 
 
 if __name__ == "__main__":
