@@ -44,6 +44,9 @@ app.add_middleware(
 
 # OCR_MODEL = CnOcr()
 OCR_MODEL = CnOcr(cand_alphabet='0123456789')
+# OCR_MODEL = CnOcr(det_model_name="en_PP-OCRv3_det", cand_alphabet='0123456789')
+# OCR_MODEL = CnOcr(rec_model_name='number-densenet_lite_136-fc', det_model_name="en_PP-OCRv3_det", cand_alphabet='0123456789')
+# OCR_MODEL = CnOcr(det_model_name='naive_det', cand_alphabet='0123456789')
 # OCR_MODEL = CnOcr(rec_model_name='number-densenet_lite_136-fc-onnx', det_model_name='naive_det', cand_alphabet='0123456789')
 # OCR_MODEL = CnOcr(rec_model_name='densenet_lite_136-gru', det_model_name='naive_det', cand_alphabet='0123456789')
 
