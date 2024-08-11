@@ -17,6 +17,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import base64
+import io
 from copy import deepcopy
 from typing import List, Dict, Any
 
@@ -27,11 +29,23 @@ from PIL import Image
 from cnocr import CnOcr
 from cnocr.utils import set_logger
 
+from fastapi.middleware.cors import CORSMiddleware
+
 logger = set_logger(log_level='DEBUG')
 
 app = FastAPI()
-OCR_MODEL = CnOcr()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+# OCR_MODEL = CnOcr()
+OCR_MODEL = CnOcr(cand_alphabet='0123456789')
+# OCR_MODEL = CnOcr(rec_model_name='number-densenet_lite_136-fc-onnx', det_model_name='naive_det', cand_alphabet='0123456789')
+# OCR_MODEL = CnOcr(rec_model_name='densenet_lite_136-gru', det_model_name='naive_det', cand_alphabet='0123456789')
 
 class OcrResponse(BaseModel):
     status_code: int = 200
@@ -46,25 +60,16 @@ class OcrResponse(BaseModel):
 async def root():
     return {"message": "Welcome to CnOCR Server!"}
 
+class OcrRequest(BaseModel):
+    imagebase64: str
 
 @app.post("/ocr")
-async def ocr(image: UploadFile) -> Dict[str, Any]:
-    image = image.file
-    image = Image.open(image).convert('RGB')
-    res = OCR_MODEL.ocr(image)
-    for _one in res:
-        _one['position'] = _one['position'].tolist()
-        if 'cropped_img' in _one:
-            _one.pop('cropped_img')
-
-    return OcrResponse(results=res).dict()
-
-@app.post("/ocrstr")
-async def ocrstr(imagestr: str) -> Dict[str, Any]:
-    print(imagestr)
-    image = base64.b64decode(imagestr)
-    image = BytesIO(image)
-    image = Image.open(image).convert('RGB')
+async def ocr(req: OcrRequest) -> Dict[str, Any]:
+    imagebase64 = req.imagebase64
+    if imagebase64.startswith('data:image/'):
+        imagebase64 = imagebase64.split(',')[1]
+    img_bytes = base64.b64decode(imagebase64)
+    image = Image.open(io.BytesIO(img_bytes)).convert('RGB')
     res = OCR_MODEL.ocr(image)
     for _one in res:
         _one['position'] = _one['position'].tolist()
