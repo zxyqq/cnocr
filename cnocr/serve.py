@@ -58,3 +58,17 @@ async def ocr(image: UploadFile) -> Dict[str, Any]:
             _one.pop('cropped_img')
 
     return OcrResponse(results=res).dict()
+
+@app.post("/ocrstr")
+async def ocrstr(imagestr: str) -> Dict[str, Any]:
+    print(imagestr)
+    image = base64.b64decode(imagestr)
+    image = BytesIO(image)
+    image = Image.open(image).convert('RGB')
+    res = OCR_MODEL.ocr(image)
+    for _one in res:
+        _one['position'] = _one['position'].tolist()
+        if 'cropped_img' in _one:
+            _one.pop('cropped_img')
+
+    return OcrResponse(results=res).dict()
