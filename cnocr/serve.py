@@ -68,10 +68,11 @@ class OcrRequest(BaseModel):
 
 @app.post("/ocr")
 async def ocr(req: OcrRequest) -> Dict[str, Any]:
-    imagebase64 = req.imagebase64
-    if imagebase64.startswith('data:image/'):
-        imagebase64 = imagebase64.split(',')[1]
-    img_bytes = base64.b64decode(imagebase64)
+    # imagebase64 = req.imagebase64
+    # if imagebase64.startswith('data:image/'):
+    # imagebase64 = req.imagebase64.split(',')[1]
+    # img_bytes = base64.b64decode(req.imagebase64.split(',')[1])
+    img_bytes = base64.b64decode(req.imagebase64)
     image = Image.open(io.BytesIO(img_bytes)).convert('RGB')
     res = OCR_MODEL.ocr(image)
     for _one in res:
