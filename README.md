@@ -39,6 +39,16 @@
 ---
 </div>
 
+### [Update 2024.11.30]：发布 V2.3.1
+
+主要变更：
+
+* 基于 RapidOCR 集成 PPOCRv4 最新版 OCR 模型，提供更多的模型选择
+  * 新增支持 PP-OCRv4  识别模型，包括标准版和服务器版
+* 修改读文件实现方式，支持 Windows 的中文路径
+* 修复Bug：当使用多个进程时，transform_func 无法序列化
+* 修复Bug：与 albumentations=1.4.* 兼容
+
 ### [Update 2023.12.24]：发布 V2.3
 
 主要变更：
@@ -376,13 +386,13 @@ print(ocr_out)
 | ------------------------------------------------------------ | ------------ | --------- | ------------ | ------------ | ------------------------------ | -------------------- |
 | db_shufflenet_v2                                             | √            | X         | cnocr        | 18 M         | 简体中文、繁体中文、英文、数字 | √                    |
 | **db_shufflenet_v2_small**                                   | √            | X         | cnocr        | 12 M         | 简体中文、繁体中文、英文、数字 | √                    |
-| [db_shufflenet_v2_tiny](https://mp.weixin.qq.com/s/fHPNoGyo72EFApVhEgR6Nw) | √            | X         | cnocr        | 7.5 M        | 简体中文、繁体中文、英文、数字 | √                    |
 | db_mobilenet_v3                                              | √            | X         | cnocr        | 16 M         | 简体中文、繁体中文、英文、数字 | √                    |
 | db_mobilenet_v3_small                                        | √            | X         | cnocr        | 7.9 M        | 简体中文、繁体中文、英文、数字 | √                    |
 | db_resnet34                                                  | √            | X         | cnocr        | 86 M         | 简体中文、繁体中文、英文、数字 | √                    |
 | db_resnet18                                                  | √            | X         | cnocr        | 47 M         | 简体中文、繁体中文、英文、数字 | √                    |
+| ch_PP-OCRv4_det                                              | X            | √         | ppocr        | 4.5 M        | 简体中文、繁体中文、英文、数字 | √                    |
+| ch_PP-OCRv4_det_server                                       | X            | √         | ppocr        | 108 M        | 简体中文、繁体中文、英文、数字 | √                    |
 | ch_PP-OCRv3_det                                              | X            | √         | ppocr        | 2.3 M        | 简体中文、繁体中文、英文、数字 | √                    |
-| ch_PP-OCRv2_det                                              | X            | √         | ppocr        | 2.2 M        | 简体中文、繁体中文、英文、数字 | √                    |
 | **en_PP-OCRv3_det**                                          | X            | √         | ppocr        | 2.3 M        | **英文**、数字                 | √                    |
 
 
@@ -419,11 +429,18 @@ print(ocr_out)
 | **number-densenet_lite_136-fc** 🆕                            | √            | √         | cnocr        | 2.7 M        | **纯数字**（仅包含 `0~9` 十个数字） | X                    |
 | **number-densenet_lite_136-gru**  🆕 <br /> ([星球会员](https://t.zsxq.com/FEYZRJQ)专享) | √            | √         | cnocr        | 5.5 M        | **纯数字**（仅包含 `0~9` 十个数字） | X                    |
 | **number-densenet_lite_666-gru_large** 🆕 <br />（购买链接：[B站](https://gf.bilibili.com/item/detail/1104055055)、[Lemon Squeezy](https://ocr.lemonsqueezy.com/)） | √            | √         | cnocr        | 55 M         | **纯数字**（仅包含 `0~9` 十个数字） | X                    |
+| ch_PP-OCRv4                                                  | X            | √         | ppocr        | 10 M         | 简体中文、英文、数字                | √                    |
+| ch_PP-OCRv4_server                                           | X            | √         | ppocr        | 86 M         | 简体中文、英文、数字                | √                    |
 | ch_PP-OCRv3                                                  | X            | √         | ppocr        | 10 M         | 简体中文、英文、数字                | √                    |
 | ch_ppocr_mobile_v2.0                                         | X            | √         | ppocr        | 4.2 M        | 简体中文、英文、数字                | √                    |
+| en_PP-OCRv4                                                  | X            | √         | ppocr        | 8.6 M        | **英文**、数字                      | √                    |
 | en_PP-OCRv3                                                  | X            | √         | ppocr        | 8.5 M        | **英文**、数字                      | √                    |
 | en_number_mobile_v2.0                                        | X            | √         | ppocr        | 1.8 M        | **英文**、数字                      | √                    |
 | chinese_cht_PP-OCRv3                                         | X            | √         | ppocr        | 11 M         | **繁体中文**、英文、数字            | X                    |
+| japan_PP-OCRv3                                               | X            | √         | ppocr        | 9.6 M         | **日文**、英文、数字                | √                    |
+| korean_PP-OCRv3                                              | X            | √         | ppocr        | 9.4 M         | **韩文**、英文、数字                | √                    |
+| latin_PP-OCRv3                                               | X            | √         | ppocr        | 8.6 M         | **拉丁文**、英文、数字              | √                    |
+| arabic_PP-OCRv3                                              | X            | √         | ppocr        | 8.6 M         | **阿拉伯文**、英文、数字            | √                    |
 
 
 
@@ -452,4 +469,3 @@ print(ocr_out)
 ---
 
 官方代码库：[https://github.com/breezedeus/cnocr](https://github.com/breezedeus/cnocr)。
-
