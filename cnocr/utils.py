@@ -1,5 +1,5 @@
 # coding: utf-8
-# Copyright (C) 2021-2023, [Breezedeus](https://github.com/breezedeus).
+# Copyright (C) 2021-2026, [Breezedeus](https://github.com/breezedeus).
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -39,14 +39,12 @@ import torchvision.transforms.functional as F
 from .consts import (
     ENCODER_CONFIGS,
     DECODER_CONFIGS,
-    AVAILABLE_MODELS,
     IMG_STANDARD_HEIGHT,
 )
 
-fmt = '[%(levelname)s %(asctime)s %(funcName)s:%(lineno)d] %(' 'message)s '
-logging.basicConfig(format=fmt)
-logging.captureWarnings(True)
-logger = logging.getLogger()
+fmt = '[%(levelname)s %(asctime)s %(funcName)s:%(lineno)d] %(message)s'
+
+logger = logging.getLogger(__name__)
 
 
 def set_logger(log_file=None, log_level=logging.INFO, log_file_level=logging.NOTSET):
@@ -55,7 +53,11 @@ def set_logger(log_file=None, log_level=logging.INFO, log_file_level=logging.NOT
         >>> set_logger(log_file)
         >>> logger.info("abc'")
     """
+    global logger
     log_format = logging.Formatter(fmt)
+    logging.basicConfig(format=fmt)
+    logging.captureWarnings(True)
+    logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(log_format)
