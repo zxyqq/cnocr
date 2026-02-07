@@ -1,5 +1,15 @@
 # Release Notes
 
+### Update 2026.02.07：发布 V2.3.2.3
+
+Major Changes:
+
+* Bump dependency: `cnstd>=1.2.7.1`.
+
+主要变更：
+
+* 依赖升级：`cnstd>=1.2.7.1`。
+
 ### Update 2025.09.21：发布 V2.3.2.2
 
 Major Changes:
